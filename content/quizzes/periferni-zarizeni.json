@@ -1,0 +1,247 @@
+{
+  "title": "Periferní zařízení",
+  "description": "Každá otázka má hodnotu 1 bod (celkem 20 otázek = 100%)",
+  "questions": [
+    {
+      "text": "Co jsou periferní zařízení?",
+      "explain": "Periferní zařízení jsou externí komponenty připojené k počítači.",
+      "type": "single",
+      "options": [
+        "Externí komponenty připojené k počítači",
+        "Vnitřní části počítače",
+        "Programy a aplikace",
+        "Operační systémy"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "m2ngyjubzb6x"
+    },
+    {
+      "text": "Klávesnice je vstupní zařízení.",
+      "explain": "Klávesnice je vstupní zařízení - slouží k zadávání dat do počítače.",
+      "type": "boolean",
+      "correct": true,
+      "id": "pmw937j6yyzc"
+    },
+    {
+      "text": "Která z následujících myší je nejpřesnější a funguje i na skle?",
+      "explain": "Laserová myš je přesnější než optická a funguje i na skleněných površích.",
+      "type": "single",
+      "options": [
+        "Optická myš",
+        "Laserová myš",
+        "Trackball",
+        "Mechanická myš"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "7uu83wqrq26q"
+    },
+    {
+      "text": "Co znamená zkratka DPI u myši? (napište zkrácený český význam - 2 slova)",
+      "explain": "DPI = citlivost myši. Vyšší DPI znamená rychlejší pohyb kurzoru.",
+      "type": "text",
+      "accept": [
+        "citlivost mysi"
+      ],
+      "id": "mwz84kh43x45"
+    },
+    {
+      "text": "Scanner je výstupní zařízení.",
+      "explain": "Scanner je vstupní zařízení - skenuje dokumenty do počítače.",
+      "type": "boolean",
+      "correct": false,
+      "id": "4jdz2ahweud2"
+    },
+    {
+      "text": "Které zařízení slouží ke kresbě a digitálnímu malování s citlivostí na tlak?",
+      "explain": "Grafický tablet umožňuje kresbení s citlivostí na tlak pera.",
+      "type": "single",
+      "options": [
+        "Touchpad",
+        "Grafický tablet",
+        "Scanner",
+        "Dotykový monitor"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "28g7az3cdpvd"
+    },
+    {
+      "text": "Jaké je nejčastější rozlišení Full HD monitoru?",
+      "explain": "Full HD má rozlišení 1920×1080 pixelů.",
+      "type": "single",
+      "options": [
+        "1280×720 px",
+        "1920×1080 px",
+        "2560×1440 px",
+        "3840×2160 px"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "7c6ftsxdjyuz"
+    },
+    {
+      "text": "Který typ panelu monitoru má dokonalou čerň a vysoký kontrast?",
+      "explain": "OLED panely mají dokonalou čerň a vysoký kontrast díky samostatně svítícím pixelům.",
+      "type": "single",
+      "options": [
+        "LCD",
+        "IPS",
+        "OLED",
+        "VA"
+      ],
+      "correct": [
+        2
+      ],
+      "id": "9njudtknn76a"
+    },
+    {
+      "text": "Která tiskárna je vhodná pro tisk fotografií s vysokou kvalitou barev?",
+      "explain": "Inkoustové tiskárny jsou ideální pro tisk fotografií díky kvalitním barvám.",
+      "type": "single",
+      "options": [
+        "Laserová tiskárna",
+        "Inkoustová tiskárna",
+        "3D tiskárna",
+        "Jehličková tiskárna"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "nbdjs38gtquv"
+    },
+    {
+      "text": "Co znamená zkratka DPI u tiskárny? (napište plný anglický význam - 3 slova)",
+      "explain": "DPI u tiskárny = Dots Per Inch (bodů na palec) - určuje rozlišení tisku.",
+      "type": "text",
+      "accept": [
+        "dots per inch"
+      ],
+      "id": "ewjz9sfnu36a"
+    },
+    {
+      "text": "Laserová tiskárna má nižší pořizovací cenu než inkoustová.",
+      "explain": "Laserové tiskárny mají vyšší pořizovací cenu, ale nižší provozní náklady.",
+      "type": "boolean",
+      "correct": false,
+      "id": "mdakm54yhrbc"
+    },
+    {
+      "text": "Které zařízení promítá obraz na velkou plochu nebo plátno?",
+      "explain": "Projektor promítá obraz na velkou plochu nebo plátno.",
+      "type": "single",
+      "options": [
+        "Monitor",
+        "Projektor",
+        "Plotr",
+        "Televize"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "59mnxqcjppzp"
+    },
+    {
+      "text": "Multifunkční tiskárna je vstupně-výstupní zařízení.",
+      "explain": "Multifunkční tiskárna je vstupně-výstupní - tiskne (výstup) i skenuje (vstup).",
+      "type": "boolean",
+      "correct": true,
+      "id": "jjf2mu6zc28k"
+    },
+    {
+      "text": "Co kombinuje headset?",
+      "explain": "Headset kombinuje sluchátka (výstup) a mikrofon (vstup).",
+      "type": "single",
+      "options": [
+        "Sluchátka a webkameru",
+        "Sluchátka a mikrofon",
+        "Reproduktory a mikrofon",
+        "Monitor a kameru"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "ue5jef4fqpp6"
+    },
+    {
+      "text": "Který port je univerzální a nejběžnější pro připojení periferií?",
+      "explain": "USB je nejběžnější univerzální port pro periferní zařízení.",
+      "type": "single",
+      "options": [
+        "HDMI",
+        "USB",
+        "Ethernet",
+        "Audio jack"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "6qy5y3uhccu5"
+    },
+    {
+      "text": "HDMI port slouží k připojení... (vyberte všechny správné odpovědi)",
+      "explain": "HDMI se používá pro připojení monitorů, projektorů a TV - přenáší video i audio.",
+      "type": "multi",
+      "options": [
+        "Monitoru",
+        "Klávesnice",
+        "Projektoru",
+        "Myši"
+      ],
+      "correct": [
+        0,
+        2
+      ],
+      "id": "2g4yj6r399z2"
+    },
+    {
+      "text": "Dotykový monitor funguje současně jako vstupní i výstupní zařízení.",
+      "explain": "Dotykový monitor zobrazuje obraz (výstup) a zároveň přijímá dotykové ovládání (vstup).",
+      "type": "boolean",
+      "correct": true,
+      "id": "qbcbmajbcw4s"
+    },
+    {
+      "text": "Která z následujících klávesnic je nejrychlejší a nejoblíbenější pro hráče?",
+      "explain": "Mechanické klávesnice mají rychlou odezvu a jsou oblíbené u hráčů.",
+      "type": "single",
+      "options": [
+        "Membránová",
+        "Mechanická",
+        "Ergonomická",
+        "Bezdrátová"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "wh4nh444ny7v"
+    },
+    {
+      "text": "USB flash disk je pouze vstupní zařízení.",
+      "explain": "USB flash disk je vstupně-výstupní - můžeme na něj zapisovat i z něj číst data.",
+      "type": "boolean",
+      "correct": false,
+      "id": "pw6ndcgpwwku"
+    },
+    {
+      "text": "Který typ reproduktorového systému má subwoofer pro basové tóny?",
+      "explain": "Systém 2.1 má dva reproduktory a jeden subwoofer pro basy.",
+      "type": "single",
+      "options": [
+        "2.0",
+        "2.1",
+        "Mono",
+        "Stereo"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "6kpnsvvtnafr"
+    }
+  ]
+}

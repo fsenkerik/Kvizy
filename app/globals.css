@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
+/* Varianta dark: řídí se atributem data-theme (next-themes), ne systémem. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+  Design tokeny. Světlý režim je výchozí, tmavý přepíná next-themes
+  atributem data-theme na <html>. Výstup z Claude Design se zapracuje
+  hlavně výměnou hodnot v těchto dvou blocích.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --bg: #f6f5fb;
+  --surface: #ffffff;
+  --surface-2: #f0eef8;
+  --border: #e3e0ef;
+  --text: #23232e;
+  --muted: #6c6b7c;
+
+  --primary: #7c6cf0;
+  --primary-hover: #6a5ae0;
+  --primary-fg: #ffffff;
+  --primary-soft: #e9e5ff;
+
+  --lavender: #e4defc;
+  --mint: #cdeee0;
+  --peach: #ffdfcc;
+  --sky: #d3e7ff;
+
+  --success-bg: #d7f2e3;
+  --success-fg: #1c6a45;
+  --danger-bg: #ffdfe6;
+  --danger-fg: #a12a48;
+  --warning-bg: #fff0c7;
+  --warning-fg: #7a5600;
+
+  --ring: #7c6cf0;
+  --shadow: 0 1px 2px rgb(35 35 46 / 0.04), 0 8px 24px -12px rgb(35 35 46 / 0.12);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #16171f;
+  --surface: #1f2029;
+  --surface-2: #272835;
+  --border: #33344a;
+  --text: #ecebf5;
+  --muted: #a3a2b8;
+
+  --primary: #a094ff;
+  --primary-hover: #b4aaff;
+  --primary-fg: #16171f;
+  --primary-soft: #2f2b4d;
+
+  --lavender: #322d55;
+  --mint: #1f3d33;
+  --peach: #4a3226;
+  --sky: #223650;
+
+  --success-bg: #1d3d2e;
+  --success-fg: #9fe3bf;
+  --danger-bg: #46222d;
+  --danger-fg: #ffb3c4;
+  --warning-bg: #443712;
+  --warning-fg: #ffd97a;
+
+  --ring: #a094ff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-lavender: var(--lavender);
+  --color-mint: var(--mint);
+  --color-peach: var(--peach);
+  --color-sky: var(--sky);
+  --color-success-bg: var(--success-bg);
+  --color-success-fg: var(--success-fg);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-fg: var(--danger-fg);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-fg: var(--warning-fg);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: var(--shadow);
+  --radius-card: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Základní stav focusu pro klávesnici */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
 }

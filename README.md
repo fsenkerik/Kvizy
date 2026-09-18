@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kvízovna
 
-## Getting Started
+Školní kvízy z informatiky na jednom odkazu. Student klikne na svou třídu, vybere jméno, zadá PIN a vyplňuje. Učitel spravuje skupiny tříd → třídy → studenty → témata → kvízy a odkazy na cvičení a vidí, kdo co vyplnil a jak odpovídal.
 
-First, run the development server:
+- **Stack:** Next.js (App Router) · Tailwind · Drizzle ORM · Postgres (Neon) · Vercel
+- **Dokumentace:** [nasazení a provoz](docs/nasazeni.md) · [formát kvízu](docs/format-kvizu.md) · [prompt pro generování kvízu](docs/prompt-generovani-kvizu.md)
+
+## Rychlý start
 
 ```bash
+npm install
+cp .env.example .env.local   # doplň AUTH_SECRET
+npm run db:migrate
+npm run create-teacher -- --email ucitel@test.cz --name "Test" --password heslo1234 --admin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otevři `http://localhost:3000` (studenti) a `http://localhost:3000/ucitel` (učitel).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struktura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/            stránky a server actions (app/actions)
+  trida/        studentská část – přihlášení do třídy, témata, kvíz, výsledek
+  ucitel/       učitelská administrace
+components/     UI komponenty (ui/), kvíz (quiz/), administrace (teacher/)
+lib/db          schéma, připojení (Neon / PGlite), dotazy
+lib/auth        session (JWT v cookie), hesla, guardy
+lib/quiz        formát kvízu (zod), hodnocení, veřejná verze otázek
+scripts/        migrace, založení učitele, převod HTML kvízů
+content/        převedené kvízy (JSON) a jejich HTML předlohy
+docs/           dokumentace
+```

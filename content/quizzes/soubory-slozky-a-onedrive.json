@@ -1,0 +1,112 @@
+{
+  "title": "Soubory, složky a OneDrive",
+  "description": "Zkontroluj si, co sis zapamatoval/a z dnešní dvouhodinovky. U otázky č. 4 je správných odpovědí víc.",
+  "questions": [
+    {
+      "text": "Co nejlépe vystihuje, k čemu slouží složka?",
+      "explain": "Složka funguje jako pořadač – nic v ní přímo není napsáno, ale schováváš do ní soubory a další složky, aby v tom byl pořádek.",
+      "type": "single",
+      "options": [
+        "Slouží k uspořádání souborů a dalších složek",
+        "Je to typ souboru s příponou .docx",
+        "Nelze do ní nic uložit",
+        "Automaticky se maže po vypnutí počítače"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "7zrwxfu66r43"
+    },
+    {
+      "text": "Novou složku můžeš rychle vytvořit klávesovou zkratkou Ctrl + Shift + N.",
+      "explain": "Přesně tak – tato zkratka vytvoří novou složku přímo z klávesnice, bez klikání pravým tlačítkem.",
+      "type": "boolean",
+      "correct": true,
+      "id": "x36545hkkuqr"
+    },
+    {
+      "text": "Na školním počítači si změníš ikonu své složky. Co se stane?",
+      "explain": "Nastavení vzhledu se neukládá do samotné složky, ale do daného zařízení – na jiném počítači uvidíš zase původní ikonu.",
+      "type": "single",
+      "options": [
+        "Automaticky se nahraje na OneDrive",
+        "Změna se objeví na všech počítačích ve třídě",
+        "Ikona zůstane jiná jen na tomto konkrétním počítači",
+        "Změna se ztratí hned po restartu počítače"
+      ],
+      "correct": [
+        2
+      ],
+      "id": "aapgfxkpfdgg"
+    },
+    {
+      "text": "Které z těchto tvrzení o OneDrivu jsou pravdivá? (může být víc správných odpovědí)",
+      "explain": "OneDrive je cloudové úložiště, do kterého se přihlašuješ školním účtem a dostaneš se k němu z libovolného počítače nebo telefonu – nejen z jednoho zařízení.",
+      "type": "multi",
+      "options": [
+        "Je to úložiště dat v cloudu (na internetu)",
+        "Přihlásíš se do něj svým školním účtem",
+        "Soubory v něm vidíš jen na jednom konkrétním počítači",
+        "Jde otevřít i z webového prohlížeče"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ],
+      "id": "un436z3hbt3v"
+    },
+    {
+      "text": "Jak se přihlásíš do OneDrivu z webového prohlížeče?",
+      "explain": "Na onedrive.com nebo office.com se přihlásíš školním e-mailem a heslem – funguje to na jakémkoli počítači i telefonu, nic se neinstaluje.",
+      "type": "single",
+      "options": [
+        "Musíš si stáhnout speciální aplikaci do telefonu",
+        "Přihlášení z webu vůbec není možné",
+        "Stačí zapnout počítač, přihlášení proběhne samo",
+        "Otevřeš onedrive.com nebo office.com a přihlásíš se účtem"
+      ],
+      "correct": [
+        3
+      ],
+      "id": "tmpcg78esze2"
+    },
+    {
+      "text": "Ikonu souboru nebo složky nejde nijak změnit, vždy zůstává úplně stejná.",
+      "explain": "Ikonu složky lze změnit přes Vlastnosti → Přizpůsobit → Změnit ikonu, případně si lze stáhnout i vlastní ikonu z webu.",
+      "type": "boolean",
+      "correct": false,
+      "id": "j8nsttez4tyx"
+    },
+    {
+      "text": "Chceš poslat stejnou zprávu celé třídě najednou, aniž bys vypisoval/a každé jméno zvlášť. Co použiješ?",
+      "explain": "Ve skupinách v e-mailu (Outlooku) vytvoříš skupinu, přidáš do ní spolužáky a od té chvíle stačí napsat zprávu skupině – dostanou ji všichni najednou.",
+      "type": "single",
+      "options": [
+        "Musíš napsat tolik e-mailů, kolik je spolužáků",
+        "Vytvoříš skupinu kontaktů a napíšeš zprávu jí",
+        "To v e-mailu vůbec nejde",
+        "Pošleš to jen jednomu a požádáš ho o přeposlání"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "gu9ttaymwjvd"
+    },
+    {
+      "text": "V Teams chceš chatovat zároveň s několika spolužáky. Co k tomu použiješ?",
+      "explain": "Přes „Nová zpráva“ a pojmenování skupiny v poli „Komu“ založíš skupinový chat, do kterého může psát kdokoli z účastníků.",
+      "type": "single",
+      "options": [
+        "Přílohu e-mailu",
+        "Vlastní ikonu složky",
+        "Skupinový chat",
+        "Kompresi souboru (ZIP)"
+      ],
+      "correct": [
+        2
+      ],
+      "id": "34sca9dgexhk"
+    }
+  ]
+}

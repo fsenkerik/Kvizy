@@ -1,0 +1,255 @@
+{
+  "title": "Hardware",
+  "description": "Každá otázka má hodnotu 1 bod (celkem 20 otázek = 100%)",
+  "questions": [
+    {
+      "text": "Co je základní deskou počítače?",
+      "explain": "Základní deska (motherboard) je hlavní deska, která spojuje všechny komponenty počítače.",
+      "type": "single",
+      "options": [
+        "Deska, která spojuje všechny komponenty počítače",
+        "Disk pro ukládání dat",
+        "Procesor počítače",
+        "Grafická karta"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "gz7dcz4kpcjg"
+    },
+    {
+      "text": "RAM je typ trvalé paměti, která uchovává data i po vypnutí počítače.",
+      "explain": "RAM je volatilní (dočasná) paměť - data se po vypnutí počítače ztrácejí.",
+      "type": "boolean",
+      "correct": false,
+      "id": "6rensbfvu9tk"
+    },
+    {
+      "text": "Jaká je hlavní funkce procesoru (CPU)?",
+      "explain": "CPU (Central Processing Unit) je procesor, který provádí výpočty a zpracovává instrukce.",
+      "type": "single",
+      "options": [
+        "Ukládání dat",
+        "Provádění výpočtů a zpracování instrukcí",
+        "Zobrazování grafiky",
+        "Připojení k internetu"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "gymj393n3sap"
+    },
+    {
+      "text": "Doplňte zkratku: Paměť RAM znamená Random Access _______.",
+      "explain": "RAM = Random Access Memory (paměť s náhodným přístupem)",
+      "type": "text",
+      "accept": [
+        "memory"
+      ],
+      "id": "sdqeadnygwmm"
+    },
+    {
+      "text": "SSD disky jsou rychlejší než klasické HDD disky.",
+      "explain": "SSD disky jsou výrazně rychlejší než HDD, protože nemají mechanické části.",
+      "type": "boolean",
+      "correct": true,
+      "id": "6apu35nefkdy"
+    },
+    {
+      "text": "Která komponenta je zodpovědná za zpracování grafiky ve hrách?",
+      "explain": "GPU (Graphics Processing Unit) neboli grafická karta zpracovává grafiku.",
+      "type": "single",
+      "options": [
+        "CPU",
+        "GPU (grafická karta)",
+        "RAM",
+        "Základní deska"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "4gqyzra43urd"
+    },
+    {
+      "text": "Jednotka, která napájí všechny komponenty počítače, se nazývá _______ (zkratka anglicky).",
+      "explain": "PSU = Power Supply Unit (zdroj napájení)",
+      "type": "text",
+      "accept": [
+        "psu"
+      ],
+      "id": "92bvpj7efr5g"
+    },
+    {
+      "text": "Kolik bitů má 1 byte?",
+      "explain": "1 byte = 8 bitů",
+      "type": "single",
+      "options": [
+        "4 bity",
+        "8 bitů",
+        "16 bitů",
+        "32 bitů"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "4uye9gev8ye3"
+    },
+    {
+      "text": "Přiřaďte k jednotlivým portům jejich správný název:",
+      "explain": "HDMI je digitální port pro připojení monitoru. Ethernet (RJ-45) je port pro síťový kabel. Audio jack (3.5mm) je port pro sluchátka. USB je univerzální port pro různá zařízení.",
+      "type": "matching",
+      "pairs": [
+        {
+          "left": "Port pro připojení monitoru (digitální)",
+          "right": "HDMI"
+        },
+        {
+          "left": "Port pro připojení síťového kabelu",
+          "right": "Ethernet"
+        },
+        {
+          "left": "Port pro připojení sluchátek",
+          "right": "Audio jack"
+        },
+        {
+          "left": "Univerzální port pro různá zařízení",
+          "right": "USB"
+        }
+      ],
+      "id": "ndd85yrz6s9d"
+    },
+    {
+      "text": "Kolik GB má 1 TB (terabyte)? (napište pouze číslo)",
+      "explain": "1 TB = 1024 GB (binárně) nebo 1000 GB (decimálně). Obě odpovědi jsou správné.",
+      "type": "text",
+      "accept": [
+        "1000",
+        "1024"
+      ],
+      "id": "pbyxsjtbva75"
+    },
+    {
+      "text": "Co znamená zkratka GPU?",
+      "explain": "GPU = Graphics Processing Unit",
+      "type": "single",
+      "options": [
+        "General Purpose Unit",
+        "Graphics Processing Unit",
+        "Global Processing Unit",
+        "Graphics Power Utility"
+      ],
+      "correct": [
+        1
+      ],
+      "id": "vpdgnwjm7wvc"
+    },
+    {
+      "text": "Vyšší frekvence procesoru (GHz) vždy znamená vyšší výkon.",
+      "explain": "Výkon závisí na více faktorech - architektura, počet jader atd.",
+      "type": "boolean",
+      "correct": false,
+      "id": "z6nduek7ngxf"
+    },
+    {
+      "text": "Zkratka SSD znamená Solid State _______.",
+      "explain": "SSD = Solid State Drive",
+      "type": "text",
+      "accept": [
+        "drive"
+      ],
+      "id": "677m6q7g849r"
+    },
+    {
+      "text": "Co je socket na základní desce?",
+      "explain": "Socket je místo na základní desce, kam se připojuje procesor.",
+      "type": "single",
+      "options": [
+        "Místo pro připojení procesoru",
+        "Místo pro připojení RAM",
+        "Místo pro připojení disku",
+        "Místo pro připojení zdroje"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "j32hmn9vtb3v"
+    },
+    {
+      "text": "Chlazení počítače je důležité pro prevenci přehřívání komponent.",
+      "explain": "Chlazení je kritické pro stabilitu a dlouhou životnost komponent.",
+      "type": "boolean",
+      "correct": true,
+      "id": "ugf42z9vmvb6"
+    },
+    {
+      "text": "Přiřaďte k výrobcům jejich produkty:",
+      "explain": "Intel vyrábí procesory řady Core (i3, i5, i7, i9). AMD vyrábí procesory řady Ryzen. NVIDIA vyrábí grafické karty řady GeForce. AMD vyrábí grafické karty řady Radeon.",
+      "type": "matching",
+      "pairs": [
+        {
+          "left": "Intel",
+          "right": "Core i7"
+        },
+        {
+          "left": "AMD (procesory)",
+          "right": "Ryzen"
+        },
+        {
+          "left": "NVIDIA",
+          "right": "GeForce RTX"
+        },
+        {
+          "left": "AMD (grafické karty)",
+          "right": "Radeon"
+        }
+      ],
+      "id": "zkz94senqnvw"
+    },
+    {
+      "text": "Označení DDR u paměti RAM znamená Double Data _______.",
+      "explain": "DDR = Double Data Rate",
+      "type": "text",
+      "accept": [
+        "rate"
+      ],
+      "id": "ubachwq6hs36"
+    },
+    {
+      "text": "Jaký je hlavní rozdíl mezi HDD a SSD disky?",
+      "explain": "HDD má rotující plotny (mechanické části), SSD má pouze čipy.",
+      "type": "single",
+      "options": [
+        "HDD má mechanické části, SSD ne",
+        "SSD má mechanické části, HDD ne",
+        "HDD je vždy rychlejší",
+        "Žádný rozdíl"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "5ggr9xyx3erf"
+    },
+    {
+      "text": "Počítač může fungovat bez operační paměti (RAM).",
+      "explain": "RAM je nezbytná pro běh operačního systému a aplikací.",
+      "type": "boolean",
+      "correct": false,
+      "id": "dcrc9x2xwwt6"
+    },
+    {
+      "text": "Co je to periferní zařízení?",
+      "explain": "Periferní zařízení jsou externí zařízení připojená k počítači.",
+      "type": "single",
+      "options": [
+        "Zařízení připojené k počítači (klávesnice, myš, tiskárna)",
+        "Součást základní desky",
+        "Typ procesoru",
+        "Typ paměti"
+      ],
+      "correct": [
+        0
+      ],
+      "id": "jzrer5d59rua"
+    }
+  ]
+}

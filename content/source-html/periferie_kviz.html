@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periferní zařízení - Kvíz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #008B8B 0%, #006666 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #008B8B;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .intro {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #008B8B;
+        }
+
+        .intro h2 {
+            color: #008B8B;
+            margin-bottom: 10px;
+        }
+
+        .question-block {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #006666;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: #008B8B;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .question-score {
+            margin-left: auto;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #f0f0f0;
+        }
+
+        .question-score.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .question-score.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .question-type {
+            display: inline-block;
+            background: #006666;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+
+        .options {
+            margin-top: 15px;
+        }
+
+        .option {
+            background: white;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .option:hover {
+            background: #f0f0f0;
+            border-color: #008B8B;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #008B8B;
+        }
+
+        .text-input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #008B8B 0%, #006666 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,139,139,0.3);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #008B8B 0%, #006666 100%);
+            color: white;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .percentage {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .feedback {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .correct-answer {
+            border-color: #28a745 !important;
+            background: #d4edda !important;
+        }
+
+        .correct-answer-label {
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .wrong-answer {
+            border-color: #dc3545 !important;
+            background: #f8d7da !important;
+        }
+
+        .wrong-answer-label {
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .answer-explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e7f3f3;
+            border-left: 4px solid #008B8B;
+            border-radius: 5px;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .answer-explanation strong {
+            color: #008B8B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Periferní zařízení - Kvíz</h1>
+        <p class="subtitle">Každá otázka má hodnotu 1 bod (celkem 20 otázek = 100%)</p>
+        
+        <div class="intro">
+            <h2>📝 Instrukce</h2>
+            <ul>
+                <li>Kvíz obsahuje 20 otázek o periferních zařízeních</li>
+                <li>Otázky testují znalosti vstupních, výstupních a vstupně-výstupních zařízení</li>
+                <li>U některých otázek vyberte jednu správnou odpověď, u jiných více možností</li>
+                <li>Po dokončení klikněte na "Vyhodnotit kvíz"</li>
+            </ul>
+        </div>
+
+        <form id="quizForm">
+            <!-- Otázka 1 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">1</div>
+                    <div class="question-text">
+                        Co jsou periferní zařízení?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q1" value="a" id="q1a">
+                        <label for="q1a">Externí komponenty připojené k počítači</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="b" id="q1b">
+                        <label for="q1b">Vnitřní části počítače</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="c" id="q1c">
+                        <label for="q1c">Programy a aplikace</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="d" id="q1d">
+                        <label for="q1d">Operační systémy</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 2 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">2</div>
+                    <div class="question-text">
+                        Klávesnice je vstupní zařízení.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q2" value="true" id="q2true">
+                        <label for="q2true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" value="false" id="q2false">
+                        <label for="q2false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 3 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">3</div>
+                    <div class="question-text">
+                        Která z následujících myší je nejpřesnější a funguje i na skle?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q3" value="a" id="q3a">
+                        <label for="q3a">Optická myš</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="b" id="q3b">
+                        <label for="q3b">Laserová myš</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="c" id="q3c">
+                        <label for="q3c">Trackball</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="d" id="q3d">
+                        <label for="q3d">Mechanická myš</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 4 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">4</div>
+                    <div class="question-text">
+                        Co znamená zkratka DPI u myši? (napište zkrácený český význam - 2 slova)
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q4" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+            <!-- Otázka 5 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">5</div>
+                    <div class="question-text">
+                        Scanner je výstupní zařízení.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q5" value="true" id="q5true">
+                        <label for="q5true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q5" value="false" id="q5false">
+                        <label for="q5false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 6 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">6</div>
+                    <div class="question-text">
+                        Které zařízení slouží ke kresbě a digitálnímu malování s citlivostí na tlak?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q6" value="a" id="q6a">
+                        <label for="q6a">Touchpad</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="b" id="q6b">
+                        <label for="q6b">Grafický tablet</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="c" id="q6c">
+                        <label for="q6c">Scanner</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="d" id="q6d">
+                        <label for="q6d">Dotykový monitor</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 7 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">7</div>
+                    <div class="question-text">
+                        Jaké je nejčastější rozlišení Full HD monitoru?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q7" value="a" id="q7a">
+                        <label for="q7a">1280×720 px</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q7" value="b" id="q7b">
+                        <label for="q7b">1920×1080 px</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q7" value="c" id="q7c">
+                        <label for="q7c">2560×1440 px</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q7" value="d" id="q7d">
+                        <label for="q7d">3840×2160 px</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 8 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">8</div>
+                    <div class="question-text">
+                        Který typ panelu monitoru má dokonalou čerň a vysoký kontrast?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q8" value="a" id="q8a">
+                        <label for="q8a">LCD</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q8" value="b" id="q8b">
+                        <label for="q8b">IPS</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q8" value="c" id="q8c">
+                        <label for="q8c">OLED</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q8" value="d" id="q8d">
+                        <label for="q8d">VA</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 9 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">9</div>
+                    <div class="question-text">
+                        Která tiskárna je vhodná pro tisk fotografií s vysokou kvalitou barev?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q9" value="a" id="q9a">
+                        <label for="q9a">Laserová tiskárna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="b" id="q9b">
+                        <label for="q9b">Inkoustová tiskárna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="c" id="q9c">
+                        <label for="q9c">3D tiskárna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="d" id="q9d">
+                        <label for="q9d">Jehličková tiskárna</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 10 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">10</div>
+                    <div class="question-text">
+                        Co znamená zkratka DPI u tiskárny? (napište plný anglický význam - 3 slova)
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q10" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+            <!-- Otázka 11 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">11</div>
+                    <div class="question-text">
+                        Laserová tiskárna má nižší pořizovací cenu než inkoustová.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q11" value="true" id="q11true">
+                        <label for="q11true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q11" value="false" id="q11false">
+                        <label for="q11false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 12 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">12</div>
+                    <div class="question-text">
+                        Které zařízení promítá obraz na velkou plochu nebo plátno?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q12" value="a" id="q12a">
+                        <label for="q12a">Monitor</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q12" value="b" id="q12b">
+                        <label for="q12b">Projektor</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q12" value="c" id="q12c">
+                        <label for="q12c">Plotr</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q12" value="d" id="q12d">
+                        <label for="q12d">Televize</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 13 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">13</div>
+                    <div class="question-text">
+                        Multifunkční tiskárna je vstupně-výstupní zařízení.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q13" value="true" id="q13true">
+                        <label for="q13true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q13" value="false" id="q13false">
+                        <label for="q13false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 14 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">14</div>
+                    <div class="question-text">
+                        Co kombinuje headset?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q14" value="a" id="q14a">
+                        <label for="q14a">Sluchátka a webkameru</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q14" value="b" id="q14b">
+                        <label for="q14b">Sluchátka a mikrofon</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q14" value="c" id="q14c">
+                        <label for="q14c">Reproduktory a mikrofon</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q14" value="d" id="q14d">
+                        <label for="q14d">Monitor a kameru</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 15 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">15</div>
+                    <div class="question-text">
+                        Který port je univerzální a nejběžnější pro připojení periferií?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q15" value="a" id="q15a">
+                        <label for="q15a">HDMI</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q15" value="b" id="q15b">
+                        <label for="q15b">USB</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q15" value="c" id="q15c">
+                        <label for="q15c">Ethernet</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q15" value="d" id="q15d">
+                        <label for="q15d">Audio jack</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 16 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">16</div>
+                    <div class="question-text">
+                        HDMI port slouží k připojení... (vyberte všechny správné odpovědi)
+                        <span class="question-type">Více možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="checkbox" name="q16a" value="correct" id="q16a">
+                        <label for="q16a">Monitoru</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" name="q16b" value="wrong" id="q16b">
+                        <label for="q16b">Klávesnice</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" name="q16c" value="correct" id="q16c">
+                        <label for="q16c">Projektoru</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" name="q16d" value="wrong" id="q16d">
+                        <label for="q16d">Myši</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 17 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">17</div>
+                    <div class="question-text">
+                        Dotykový monitor funguje současně jako vstupní i výstupní zařízení.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q17" value="true" id="q17true">
+                        <label for="q17true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q17" value="false" id="q17false">
+                        <label for="q17false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 18 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">18</div>
+                    <div class="question-text">
+                        Která z následujících klávesnic je nejrychlejší a nejoblíbenější pro hráče?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q18" value="a" id="q18a">
+                        <label for="q18a">Membránová</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q18" value="b" id="q18b">
+                        <label for="q18b">Mechanická</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q18" value="c" id="q18c">
+                        <label for="q18c">Ergonomická</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q18" value="d" id="q18d">
+                        <label for="q18d">Bezdrátová</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 19 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">19</div>
+                    <div class="question-text">
+                        USB flash disk je pouze vstupní zařízení.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q19" value="true" id="q19true">
+                        <label for="q19true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q19" value="false" id="q19false">
+                        <label for="q19false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Otázka 20 -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">20</div>
+                    <div class="question-text">
+                        Který typ reproduktorového systému má subwoofer pro basové tóny?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q20" value="a" id="q20a">
+                        <label for="q20a">2.0</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q20" value="b" id="q20b">
+                        <label for="q20b">2.1</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q20" value="c" id="q20c">
+                        <label for="q20c">Mono</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q20" value="d" id="q20d">
+                        <label for="q20d">Stereo</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="submit-button" onclick="gradeQuiz()">🎯 Vyhodnotit kvíz</button>
+        </form>
+
+        <div id="result" class="result">
+            <h2>📊 Výsledky kvízu</h2>
+            <div class="score" id="score"></div>
+            <div class="percentage" id="percentage"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: 'a',
+            q2: 'true',
+            q3: 'b',
+            q4: 'citlivost mysi',
+            q5: 'false',
+            q6: 'b',
+            q7: 'b',
+            q8: 'c',
+            q9: 'b',
+            q10: 'dots per inch',
+            q11: 'false',
+            q12: 'b',
+            q13: 'true',
+            q14: 'b',
+            q15: 'b',
+            q17: 'true',
+            q18: 'b',
+            q19: 'false',
+            q20: 'b'
+        };
+
+        const explanations = {
+            q1: 'Periferní zařízení jsou externí komponenty připojené k počítači.',
+            q2: 'Klávesnice je vstupní zařízení - slouží k zadávání dat do počítače.',
+            q3: 'Laserová myš je přesnější než optická a funguje i na skleněných površích.',
+            q4: 'DPI = citlivost myši. Vyšší DPI znamená rychlejší pohyb kurzoru.',
+            q5: 'Scanner je vstupní zařízení - skenuje dokumenty do počítače.',
+            q6: 'Grafický tablet umožňuje kresbení s citlivostí na tlak pera.',
+            q7: 'Full HD má rozlišení 1920×1080 pixelů.',
+            q8: 'OLED panely mají dokonalou čerň a vysoký kontrast díky samostatně svítícím pixelům.',
+            q9: 'Inkoustové tiskárny jsou ideální pro tisk fotografií díky kvalitním barvám.',
+            q10: 'DPI u tiskárny = Dots Per Inch (bodů na palec) - určuje rozlišení tisku.',
+            q11: 'Laserové tiskárny mají vyšší pořizovací cenu, ale nižší provozní náklady.',
+            q12: 'Projektor promítá obraz na velkou plochu nebo plátno.',
+            q13: 'Multifunkční tiskárna je vstupně-výstupní - tiskne (výstup) i skenuje (vstup).',
+            q14: 'Headset kombinuje sluchátka (výstup) a mikrofon (vstup).',
+            q15: 'USB je nejběžnější univerzální port pro periferní zařízení.',
+            q16: 'HDMI se používá pro připojení monitorů, projektorů a TV - přenáší video i audio.',
+            q17: 'Dotykový monitor zobrazuje obraz (výstup) a zároveň přijímá dotykové ovládání (vstup).',
+            q18: 'Mechanické klávesnice mají rychlou odezvu a jsou oblíbené u hráčů.',
+            q19: 'USB flash disk je vstupně-výstupní - můžeme na něj zapisovat i z něj číst data.',
+            q20: 'Systém 2.1 má dva reproduktory a jeden subwoofer pro basy.'
+        };
+
+        function normalizeAnswer(answer) {
+            if (!answer) return '';
+            return answer.toString().toLowerCase().trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^\w\s]/g, '');
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+            let totalQuestions = 20;
+            const form = document.getElementById('quizForm');
+            const formData = new FormData(form);
+
+            // Disable all form inputs
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Grade each question
+            for (let key in answers) {
+                let userAnswer = formData.get(key);
+                let correctAnswer = answers[key];
+                
+                let normalizedUser = normalizeAnswer(userAnswer);
+                let normalizedCorrect = normalizeAnswer(correctAnswer);
+
+                let isCorrect = normalizedUser === normalizedCorrect;
+                
+                if (isCorrect) {
+                    score++;
+                }
+
+                // Get question number
+                let questionNum = parseInt(key.replace('q', ''));
+                let questionHeader = document.querySelectorAll('.question-header')[questionNum - 1];
+                
+                if (questionHeader) {
+                    let existingScore = questionHeader.querySelector('.question-score');
+                    if (existingScore) {
+                        existingScore.remove();
+                    }
+                    
+                    let scoreSpan = document.createElement('span');
+                    scoreSpan.className = 'question-score ' + (isCorrect ? 'correct' : 'incorrect');
+                    scoreSpan.textContent = isCorrect ? '1/1' : '0/1';
+                    questionHeader.appendChild(scoreSpan);
+                }
+
+                // Highlight answers
+                if (['q4', 'q10'].includes(key)) {
+                    highlightFillInAnswer(key, correctAnswer, isCorrect);
+                } else {
+                    highlightMultipleChoiceAnswer(key, correctAnswer, userAnswer, isCorrect);
+                }
+            }
+
+            // Grade question 16 (checkboxes)
+            let q16Correct = 
+                formData.get('q16a') === 'correct' && 
+                formData.get('q16c') === 'correct' &&
+                !formData.get('q16b') && 
+                !formData.get('q16d');
+            
+            if (q16Correct) {
+                score++;
+            }
+
+            let questionHeader16 = document.querySelectorAll('.question-header')[15];
+            if (questionHeader16) {
+                let existingScore = questionHeader16.querySelector('.question-score');
+                if (existingScore) existingScore.remove();
+                
+                let scoreSpan = document.createElement('span');
+                scoreSpan.className = 'question-score ' + (q16Correct ? 'correct' : 'incorrect');
+                scoreSpan.textContent = q16Correct ? '1/1' : '0/1';
+                questionHeader16.appendChild(scoreSpan);
+            }
+
+            // Highlight checkboxes
+            document.querySelectorAll('input[name^="q16"]').forEach(input => {
+                let option = input.closest('.option');
+                if (input.checked) {
+                    if (input.value === 'correct') {
+                        option.classList.add('correct-answer');
+                    } else {
+                        option.classList.add('wrong-answer');
+                    }
+                } else if (input.value === 'correct') {
+                    option.classList.add('correct-answer');
+                }
+            });
+
+            let questionBlock16 = document.querySelectorAll('.question-block')[15];
+            if (questionBlock16 && !questionBlock16.querySelector('.answer-explanation')) {
+                let explanation = document.createElement('div');
+                explanation.className = 'answer-explanation';
+                explanation.innerHTML = '<strong>✓ Správná odpověď:</strong> Monitor a Projektor<br>' + explanations.q16;
+                questionBlock16.appendChild(explanation);
+            }
+
+            // Calculate percentage
+            let percentage = Math.round((score / totalQuestions) * 100);
+
+            // Display results
+            document.getElementById('score').textContent = `${score} / ${totalQuestions}`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+
+            let feedbackText = '';
+            if (percentage >= 90) {
+                feedbackText = '🌟 Výborně! Máš skvělé znalosti o periferních zařízeních!';
+            } else if (percentage >= 75) {
+                feedbackText = '👍 Velmi dobře! Máš solidní znalosti.';
+            } else if (percentage >= 60) {
+                feedbackText = '✔️ Dobře, ale je prostor pro zlepšení.';
+            } else if (percentage >= 50) {
+                feedbackText = '📚 Doporučuji ještě si látku zopakovat.';
+            } else {
+                feedbackText = '💪 Nevzdávej to! Projdi si látku znovu a zkus to ještě jednou.';
+            }
+
+            document.getElementById('feedback').textContent = feedbackText;
+            document.getElementById('result').classList.add('show');
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function highlightMultipleChoiceAnswer(questionKey, correctAnswer, userAnswer, isCorrect) {
+            let options = document.querySelectorAll(`input[name="${questionKey}"]`);
+            
+            options.forEach(option => {
+                let optionDiv = option.closest('.option');
+                let label = optionDiv.querySelector('label');
+                
+                if (option.value === userAnswer) {
+                    if (isCorrect) {
+                        optionDiv.classList.add('correct-answer');
+                        label.classList.add('correct-answer-label');
+                    } else {
+                        optionDiv.classList.add('wrong-answer');
+                        label.classList.add('wrong-answer-label');
+                    }
+                }
+                
+                if (option.value === correctAnswer && !isCorrect) {
+                    optionDiv.classList.add('correct-answer');
+                    label.classList.add('correct-answer-label');
+                }
+                
+                optionDiv.classList.add('disabled');
+            });
+            
+            addExplanation(questionKey);
+        }
+
+        function highlightFillInAnswer(questionKey, correctAnswer, isCorrect) {
+            let input = document.querySelector(`input[name="${questionKey}"]`);
+            
+            if (input) {
+                if (isCorrect) {
+                    input.classList.add('correct-answer');
+                } else {
+                    input.classList.add('wrong-answer');
+                }
+                
+                addExplanation(questionKey, correctAnswer);
+            }
+        }
+
+        function addExplanation(questionKey, correctAnswerText = null) {
+            let questionNum = parseInt(questionKey.replace('q', ''));
+            let questionBlock = document.querySelectorAll('.question-block')[questionNum - 1];
+            
+            if (questionBlock && explanations[questionKey]) {
+                let existingExplanation = questionBlock.querySelector('.answer-explanation');
+                if (existingExplanation) {
+                    return;
+                }
+                
+                let explanation = document.createElement('div');
+                explanation.className = 'answer-explanation';
+                
+                let explanationText = '<strong>✓ Správná odpověď:</strong> ';
+                
+                if (correctAnswerText) {
+                    explanationText += correctAnswerText + '<br>';
+                }
+                
+                explanationText += explanations[questionKey];
+                
+                explanation.innerHTML = explanationText;
+                questionBlock.appendChild(explanation);
+            }
+        }
+
+        // Vylepšení klikatelnosti
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                const input = this.querySelector('input[type="radio"], input[type="checkbox"]');
+                if (input && e.target !== input) {
+                    if (input.type === 'radio') {
+                        input.checked = true;
+                    } else if (input.type === 'checkbox') {
+                        input.checked = !input.checked;
+                    }
+                }
+            });
+        });
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

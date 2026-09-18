@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware - Kvíz pro 2. ročník gymnázia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .intro {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .intro h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .intro ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .intro li {
+            margin: 5px 0;
+        }
+
+        .question-block {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .question-score {
+            margin-left: auto;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #f0f0f0;
+        }
+
+        .question-score.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .question-score.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .question-type {
+            display: inline-block;
+            background: #764ba2;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-left: 10px;
+        }
+
+        .options {
+            margin-top: 15px;
+        }
+
+        .option {
+            background: white;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .option:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .text-input:disabled,
+        .matching-select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .matching-column h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .matching-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .matching-select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            display: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .result .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .result .percentage {
+            font-size: 1.5em;
+            opacity: 0.9;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .correct-answer {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+
+        .wrong-answer {
+            background: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+
+        .correct-answer-label {
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .wrong-answer-label {
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .answer-explanation {
+            margin-top: 15px;
+            padding: 12px;
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #155724;
+        }
+
+        .answer-explanation strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .matching-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Hardware Kvíz</h1>
+        <p class="subtitle">Každá otázka má hodnotu 1 bod (celkem 20 otázek = 100%)</p>
+
+        <div class="intro">
+            <h2>Instrukce:</h2>
+            <ul>
+                <li>Kvíz obsahuje 23 otázek různých typů</li>
+                <li>U otázek s výběrem z možností vyberte jednu správnou odpověď</li>
+                <li>U pravda/nepravda otázek označte, zda je tvrzení pravdivé</li>
+                <li>U doplňovaček napište správnou odpověď</li>
+                <li>U párování pojmů přiřaďte správné dvojice</li>
+                <li>Po dokončení klikněte na tlačítko "Vyhodnotit kvíz"</li>
+            </ul>
+        </div>
+
+        <form id="quizForm">
+            <!-- Otázka 1 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">1</div>
+                    <div class="question-text">
+                        Co je základní deskou počítače?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q1" value="a" id="q1a">
+                        <label for="q1a">Deska, která spojuje všechny komponenty počítače</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="b" id="q1b">
+                        <label for="q1b">Disk pro ukládání dat</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="c" id="q1c">
+                        <label for="q1c">Procesor počítače</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q1" value="d" id="q1d">
+                        <label for="q1d">Grafická karta</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 2 - True/False -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">2</div>
+                    <div class="question-text">
+                        RAM je typ trvalé paměti, která uchovává data i po vypnutí počítače.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q2" value="true" id="q2true">
+                        <label for="q2true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q2" value="false" id="q2false">
+                        <label for="q2false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 3 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">3</div>
+                    <div class="question-text">
+                        Jaká je hlavní funkce procesoru (CPU)?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q3" value="a" id="q3a">
+                        <label for="q3a">Ukládání dat</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="b" id="q3b">
+                        <label for="q3b">Provádění výpočtů a zpracování instrukcí</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="c" id="q3c">
+                        <label for="q3c">Zobrazování grafiky</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q3" value="d" id="q3d">
+                        <label for="q3d">Připojení k internetu</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 4 - Fill in -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">4</div>
+                    <div class="question-text">
+                        Doplňte zkratku: Paměť RAM znamená Random Access _______.
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q4" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+<!-- Otázka 5 - True/False -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">5</div>
+                    <div class="question-text">
+                        SSD disky jsou rychlejší než klasické HDD disky.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q5" value="true" id="q5true">
+                        <label for="q5true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q5" value="false" id="q5false">
+                        <label for="q5false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 6 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">6</div>
+                    <div class="question-text">
+                        Která komponenta je zodpovědná za zpracování grafiky ve hrách?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q6" value="a" id="q6a">
+                        <label for="q6a">CPU</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="b" id="q6b">
+                        <label for="q6b">GPU (grafická karta)</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="c" id="q6c">
+                        <label for="q6c">RAM</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q6" value="d" id="q6d">
+                        <label for="q6d">Základní deska</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 7 - Fill in -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">7</div>
+                    <div class="question-text">
+                        Jednotka, která napájí všechny komponenty počítače, se nazývá _______ (zkratka anglicky).
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q7" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+<!-- Otázka 8 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">8</div>
+                    <div class="question-text">
+                        Kolik bitů má 1 byte?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q9" value="a" id="q9a">
+                        <label for="q9a">4 bity</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="b" id="q9b">
+                        <label for="q9b">8 bitů</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="c" id="q9c">
+                        <label for="q9c">16 bitů</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q9" value="d" id="q9d">
+                        <label for="q9d">32 bitů</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 9 - Matching -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">9</div>
+                    <div class="question-text">
+                        Přiřaďte k jednotlivým portům jejich správný název:
+                        <span class="question-type">Párování</span>
+                    </div>
+                </div>
+                <div class="matching-container">
+                    <div class="matching-column">
+                        <h4>Porty:</h4>
+                        <div class="matching-item">
+                            1. Port pro připojení monitoru (digitální)
+                            <select name="q10_1" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">USB</option>
+                                <option value="b">HDMI</option>
+                                <option value="c">Ethernet</option>
+                                <option value="d">Audio jack</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            2. Port pro připojení síťového kabelu
+                            <select name="q10_2" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">USB</option>
+                                <option value="b">HDMI</option>
+                                <option value="c">Ethernet</option>
+                                <option value="d">Audio jack</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            3. Port pro připojení sluchátek
+                            <select name="q10_3" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">USB</option>
+                                <option value="b">HDMI</option>
+                                <option value="c">Ethernet</option>
+                                <option value="d">Audio jack</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            4. Univerzální port pro různá zařízení
+                            <select name="q10_4" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">USB</option>
+                                <option value="b">HDMI</option>
+                                <option value="c">Ethernet</option>
+                                <option value="d">Audio jack</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 10 - Fill in -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">10</div>
+                    <div class="question-text">
+                        Kolik GB má 1 TB (terabyte)? (napište pouze číslo)
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q11" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+<!-- Otázka 11 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">11</div>
+                    <div class="question-text">
+                        Co znamená zkratka GPU?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q13" value="a" id="q13a">
+                        <label for="q13a">General Purpose Unit</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q13" value="b" id="q13b">
+                        <label for="q13b">Graphics Processing Unit</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q13" value="c" id="q13c">
+                        <label for="q13c">Global Processing Unit</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q13" value="d" id="q13d">
+                        <label for="q13d">Graphics Power Utility</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 12 - True/False -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">12</div>
+                    <div class="question-text">
+                        Vyšší frekvence procesoru (GHz) vždy znamená vyšší výkon.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q15" value="true" id="q15true">
+                        <label for="q15true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q15" value="false" id="q15false">
+                        <label for="q15false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 13 - Fill in -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">13</div>
+                    <div class="question-text">
+                        Zkratka SSD znamená Solid State _______.
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q16" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+<!-- Otázka 14 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">14</div>
+                    <div class="question-text">
+                        Co je socket na základní desce?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q17" value="a" id="q17a">
+                        <label for="q17a">Místo pro připojení procesoru</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q17" value="b" id="q17b">
+                        <label for="q17b">Místo pro připojení RAM</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q17" value="c" id="q17c">
+                        <label for="q17c">Místo pro připojení disku</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q17" value="d" id="q17d">
+                        <label for="q17d">Místo pro připojení zdroje</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 15 - True/False -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">15</div>
+                    <div class="question-text">
+                        Chlazení počítače je důležité pro prevenci přehřívání komponent.
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q18" value="true" id="q18true">
+                        <label for="q18true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q18" value="false" id="q18false">
+                        <label for="q18false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 16 - Matching -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">16</div>
+                    <div class="question-text">
+                        Přiřaďte k výrobcům jejich produkty:
+                        <span class="question-type">Párování</span>
+                    </div>
+                </div>
+                <div class="matching-container">
+                    <div class="matching-column">
+                        <h4>Výrobci:</h4>
+                        <div class="matching-item">
+                            1. Intel
+                            <select name="q19_1" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">GeForce RTX</option>
+                                <option value="b">Core i7</option>
+                                <option value="c">Ryzen</option>
+                                <option value="d">Radeon</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            2. AMD (procesory)
+                            <select name="q19_2" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">GeForce RTX</option>
+                                <option value="b">Core i7</option>
+                                <option value="c">Ryzen</option>
+                                <option value="d">Radeon</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            3. NVIDIA
+                            <select name="q19_3" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">GeForce RTX</option>
+                                <option value="b">Core i7</option>
+                                <option value="c">Ryzen</option>
+                                <option value="d">Radeon</option>
+                            </select>
+                        </div>
+                        <div class="matching-item">
+                            4. AMD (grafické karty)
+                            <select name="q19_4" class="matching-select">
+                                <option value="">-- Vyberte --</option>
+                                <option value="a">GeForce RTX</option>
+                                <option value="b">Core i7</option>
+                                <option value="c">Ryzen</option>
+                                <option value="d">Radeon</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 17 - Fill in -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">17</div>
+                    <div class="question-text">
+                        Označení DDR u paměti RAM znamená Double Data _______.
+                        <span class="question-type">Doplňovačka</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <input type="text" name="q20" class="text-input" placeholder="Vaše odpověď...">
+                </div>
+            </div>
+
+<!-- Otázka 18 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">18</div>
+                    <div class="question-text">
+                        Jaký je hlavní rozdíl mezi HDD a SSD disky?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q21" value="a" id="q21a">
+                        <label for="q21a">HDD má mechanické části, SSD ne</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q21" value="b" id="q21b">
+                        <label for="q21b">SSD má mechanické části, HDD ne</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q21" value="c" id="q21c">
+                        <label for="q21c">HDD je vždy rychlejší</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q21" value="d" id="q21d">
+                        <label for="q21d">Žádný rozdíl</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 19 - True/False -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">19</div>
+                    <div class="question-text">
+                        Počítač může fungovat bez operační paměti (RAM).
+                        <span class="question-type">Pravda/Nepravda</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q22" value="true" id="q22true">
+                        <label for="q22true">Pravda</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q22" value="false" id="q22false">
+                        <label for="q22false">Nepravda</label>
+                    </div>
+                </div>
+            </div>
+
+<!-- Otázka 20 - Multiple Choice -->
+            <div class="question-block">
+                <div class="question-header">
+                    <div class="question-number">20</div>
+                    <div class="question-text">
+                        Co je to periferní zařízení?
+                        <span class="question-type">Výběr z možností</span>
+                    </div>
+                </div>
+                <div class="options">
+                    <div class="option">
+                        <input type="radio" name="q23" value="a" id="q23a">
+                        <label for="q23a">Zařízení připojené k počítači (klávesnice, myš, tiskárna)</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q23" value="b" id="q23b">
+                        <label for="q23b">Součást základní desky</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q23" value="c" id="q23c">
+                        <label for="q23c">Typ procesoru</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="q23" value="d" id="q23d">
+                        <label for="q23d">Typ paměti</label>
+                    </div>
+                </div>
+            </div>
+
+
+            <button type="button" class="submit-button" onclick="gradeQuiz()">🎯 Vyhodnotit kvíz</button>
+        </form>
+
+        <div id="result" class="result">
+            <h2>📊 Výsledky kvízu</h2>
+            <div class="score" id="score"></div>
+            <div class="percentage" id="percentage"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: 'a',
+            q2: 'false',
+            q3: 'b',
+            q4: 'memory',
+            q5: 'true',
+            q6: 'b',
+            q7: 'psu',            q9: 'b',
+            q10_1: 'b',
+            q10_2: 'c',
+            q10_3: 'd',
+            q10_4: 'a',
+            q11: ['1000', '1024'],            q13: 'b',            q15: 'false',
+            q16: 'drive',
+            q17: 'a',
+            q18: 'true',
+            q19_1: 'b',
+            q19_2: 'c',
+            q19_3: 'a',
+            q19_4: 'd',
+            q20: 'rate',
+            q21: 'a',
+            q22: 'false',
+            q23: 'a'
+        };
+
+        const explanations = {
+            q1: 'Základní deska (motherboard) je hlavní deska, která spojuje všechny komponenty počítače.',
+            q2: 'RAM je volatilní (dočasná) paměť - data se po vypnutí počítače ztrácejí.',
+            q3: 'CPU (Central Processing Unit) je procesor, který provádí výpočty a zpracovává instrukce.',
+            q4: 'RAM = Random Access Memory (paměť s náhodným přístupem)',
+            q5: 'SSD disky jsou výrazně rychlejší než HDD, protože nemají mechanické části.',
+            q6: 'GPU (Graphics Processing Unit) neboli grafická karta zpracovává grafiku.',
+            q7: 'PSU = Power Supply Unit (zdroj napájení)',            q9: '1 byte = 8 bitů',
+            q10_1: 'HDMI je digitální port pro připojení monitoru.',
+            q10_2: 'Ethernet (RJ-45) je port pro síťový kabel.',
+            q10_3: 'Audio jack (3.5mm) je port pro sluchátka.',
+            q10_4: 'USB je univerzální port pro různá zařízení.',
+            q11: '1 TB = 1024 GB (binárně) nebo 1000 GB (decimálně). Obě odpovědi jsou správné.',            q13: 'GPU = Graphics Processing Unit',            q15: 'Výkon závisí na více faktorech - architektura, počet jader atd.',
+            q16: 'SSD = Solid State Drive',
+            q17: 'Socket je místo na základní desce, kam se připojuje procesor.',
+            q18: 'Chlazení je kritické pro stabilitu a dlouhou životnost komponent.',
+            q19_1: 'Intel vyrábí procesory řady Core (i3, i5, i7, i9).',
+            q19_2: 'AMD vyrábí procesory řady Ryzen.',
+            q19_3: 'NVIDIA vyrábí grafické karty řady GeForce.',
+            q19_4: 'AMD vyrábí grafické karty řady Radeon.',
+            q20: 'DDR = Double Data Rate',
+            q21: 'HDD má rotující plotny (mechanické části), SSD má pouze čipy.',
+            q22: 'RAM je nezbytná pro běh operačního systému a aplikací.',
+            q23: 'Periferní zařízení jsou externí zařízení připojená k počítači.'
+        };
+
+        function normalizeAnswer(answer) {
+            if (!answer) return '';
+            return answer.toString().toLowerCase().trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+            let totalQuestions = 20;
+            const form = document.getElementById('quizForm');
+            const formData = new FormData(form);
+
+            // Mapování názvů inputů (původní čísla) na aktuální pozici otázky (1-20)
+            const questionMapping = {
+                'q1': 1,
+                'q2': 2,
+                'q3': 3,
+                'q4': 4,
+                'q5': 5,
+                'q6': 6,
+                'q7': 7,
+                'q9': 8,      // původní q9 je nyní otázka 8
+                'q10': 9,     // matching otázka
+                'q11': 10,
+                'q13': 11,
+                'q15': 12,
+                'q16': 13,
+                'q17': 14,
+                'q18': 15,
+                'q19': 16,
+                'q20': 17,
+                'q21': 18,
+                'q22': 19,
+                'q23': 20
+            };
+
+            // Disable all form inputs
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Grade each question and highlight answers
+            let matchingScores = {}; // Track matching question scores
+            
+            for (let key in answers) {
+                let userAnswer = formData.get(key);
+                let correctAnswer = answers[key];
+                
+                let normalizedUser = normalizeAnswer(userAnswer);
+                let isCorrect;
+                
+                // Pokud je správná odpověď pole (více možností)
+                if (Array.isArray(correctAnswer)) {
+                    isCorrect = correctAnswer.some(ans => normalizeAnswer(ans) === normalizedUser);
+                } else {
+                    let normalizedCorrect = normalizeAnswer(correctAnswer);
+                    isCorrect = normalizedUser === normalizedCorrect;
+                }
+                
+                // Pro matching otázky počítáme body speciálně
+                if (key.includes('_')) {
+                    let baseKey = key.split('_')[0]; // q10_1 -> q10
+                    if (!matchingScores[baseKey]) {
+                        matchingScores[baseKey] = { correct: 0, total: 0 };
+                    }
+                    matchingScores[baseKey].total++;
+                    if (isCorrect) {
+                        matchingScores[baseKey].correct++;
+                    }
+                } else {
+                    // Normální otázky počítáme rovnou
+                    if (isCorrect) {
+                        score++;
+                    }
+                }
+
+                // Get question number from key using mapping
+                let baseKey = key.split('_')[0]; // q10_1 -> q10
+                let displayQuestionNum = questionMapping[baseKey];
+                
+                // Add score display to question header (only once per question)
+                let questionHeader = null;
+                if (displayQuestionNum) {
+                    questionHeader = document.querySelectorAll('.question-header')[displayQuestionNum - 1];
+                }
+                
+                if (questionHeader) {
+                    // Pro matching otázky zobrazíme skóre až když máme všechny sub-otázky
+                    if (key.includes('_')) {
+                        // Pouze pokud je to poslední sub-otázka (q10_4, q19_4)
+                        if (key.endsWith('_4')) {
+                            let matchData = matchingScores[baseKey];
+                            let matchingIsCorrect = (matchData.correct === matchData.total);
+                            
+                            // Remove existing score if any
+                            let existingScore = questionHeader.querySelector('.question-score');
+                            if (existingScore) {
+                                existingScore.remove();
+                            }
+                            
+                            let scoreSpan = document.createElement('span');
+                            scoreSpan.className = 'question-score ' + (matchingIsCorrect ? 'correct' : 'incorrect');
+                            scoreSpan.textContent = matchingIsCorrect ? '1/1' : '0/1';
+                            questionHeader.appendChild(scoreSpan);
+                        }
+                    } else {
+                        // Normální otázky - zobrazíme skóre
+                        // Remove existing score if any
+                        let existingScore = questionHeader.querySelector('.question-score');
+                        if (existingScore) {
+                            existingScore.remove();
+                        }
+                        
+                        let scoreSpan = document.createElement('span');
+                        scoreSpan.className = 'question-score ' + (isCorrect ? 'correct' : 'incorrect');
+                        scoreSpan.textContent = isCorrect ? '1/1' : '0/1';
+                        questionHeader.appendChild(scoreSpan);
+                    }
+                }
+
+                // Highlight answers based on type
+                if (key.includes('_')) {
+                    // Matching question
+                    let normalizedCorrect = normalizeAnswer(correctAnswer);
+                    highlightMatchingAnswer(key, correctAnswer, normalizedUser, normalizedCorrect);
+                } else if (['q4', 'q7', 'q11', 'q16', 'q20'].includes(key)) {
+                    // Fill-in question
+                    highlightFillInAnswer(key, correctAnswer, isCorrect);
+                } else {
+                    // Multiple choice or True/False
+                    highlightMultipleChoiceAnswer(key, correctAnswer, userAnswer, isCorrect);
+                }
+            }
+
+            // Přidáme body za matching otázky (celá otázka = 1 bod pokud jsou všechny sub-otázky správně)
+            for (let baseKey in matchingScores) {
+                let matchData = matchingScores[baseKey];
+                if (matchData.correct === matchData.total) {
+                    score++; // Všechny sub-otázky správně = 1 bod
+                }
+            }
+
+            // Calculate percentage
+            let percentage = Math.round((score / totalQuestions) * 100);
+
+            // Display results
+            document.getElementById('score').textContent = `${score} / ${totalQuestions}`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+
+            // Feedback based on score
+            let feedbackText = '';
+            if (percentage >= 90) {
+                feedbackText = '🌟 Výborně! Máš skvělé znalosti o hardware!';
+            } else if (percentage >= 75) {
+                feedbackText = '👍 Velmi dobře! Máš solidní znalosti.';
+            } else if (percentage >= 60) {
+                feedbackText = '✔️ Dobře, ale je prostor pro zlepšení.';
+            } else if (percentage >= 50) {
+                feedbackText = '📚 Doporučuji ještě si látku zopakovat.';
+            } else {
+                feedbackText = '💪 Nevzdávej to! Projdi si látku znovu a zkus to ještě jednou.';
+            }
+
+            document.getElementById('feedback').textContent = feedbackText;
+            document.getElementById('result').classList.add('show');
+
+            // Scroll to results
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function highlightMultipleChoiceAnswer(questionKey, correctAnswer, userAnswer, isCorrect) {
+            // Find all options for this question
+            let options = document.querySelectorAll(`input[name="${questionKey}"]`);
+            
+            options.forEach(option => {
+                let optionDiv = option.closest('.option');
+                let label = optionDiv.querySelector('label');
+                
+                // Highlight user's answer
+                if (option.value === userAnswer) {
+                    if (isCorrect) {
+                        optionDiv.classList.add('correct-answer');
+                        label.classList.add('correct-answer-label');
+                    } else {
+                        optionDiv.classList.add('wrong-answer');
+                        label.classList.add('wrong-answer-label');
+                    }
+                }
+                
+                // Highlight correct answer if user was wrong
+                if (option.value === correctAnswer && !isCorrect) {
+                    optionDiv.classList.add('correct-answer');
+                    label.classList.add('correct-answer-label');
+                }
+                
+                optionDiv.classList.add('disabled');
+            });
+            
+            // Add explanation
+            addExplanation(questionKey);
+        }
+
+        function highlightFillInAnswer(questionKey, correctAnswer, isCorrect) {
+            let input = document.querySelector(`input[name="${questionKey}"]`);
+            
+            if (input) {
+                if (isCorrect) {
+                    input.classList.add('correct-answer');
+                } else {
+                    input.classList.add('wrong-answer');
+                }
+                
+                // Add explanation with correct answer
+                addExplanation(questionKey, correctAnswer);
+            }
+        }
+
+        function highlightMatchingAnswer(questionKey, correctAnswer, userAnswer, normalizedCorrect) {
+            let select = document.querySelector(`select[name="${questionKey}"]`);
+            
+            if (select) {
+                let matchingItem = select.closest('.matching-item');
+                
+                if (userAnswer === normalizedCorrect) {
+                    matchingItem.style.background = '#d4edda';
+                    matchingItem.style.borderColor = '#28a745';
+                    select.classList.add('correct-answer');
+                } else {
+                    matchingItem.style.background = '#f8d7da';
+                    matchingItem.style.borderColor = '#dc3545';
+                    select.classList.add('wrong-answer');
+                }
+                
+                // Add explanation
+                addExplanation(questionKey);
+            }
+        }
+
+        function addExplanation(questionKey, correctAnswerText = null) {
+            // Mapování názvů inputů na pozici otázky
+            const questionMapping = {
+                'q1': 1, 'q2': 2, 'q3': 3, 'q4': 4, 'q5': 5, 'q6': 6, 'q7': 7,
+                'q9': 8, 'q10': 9, 'q11': 10, 'q13': 11, 'q15': 12, 'q16': 13,
+                'q17': 14, 'q18': 15, 'q19': 16, 'q20': 17, 'q21': 18, 'q22': 19, 'q23': 20
+            };
+            
+            let baseKey = questionKey.split('_')[0];
+            let displayQuestionNum = questionMapping[baseKey];
+            let questionBlock = null;
+            
+            if (displayQuestionNum) {
+                questionBlock = document.querySelectorAll('.question-block')[displayQuestionNum - 1];
+            }
+            
+            if (questionBlock && explanations[questionKey]) {
+                // Check if explanation already exists
+                let existingExplanation = questionBlock.querySelector('.answer-explanation');
+                if (existingExplanation) {
+                    return;
+                }
+                
+                let explanation = document.createElement('div');
+                explanation.className = 'answer-explanation';
+                
+                let explanationText = '<strong>✓ Správná odpověď:</strong> ';
+                
+                if (correctAnswerText) {
+                    explanationText += correctAnswerText + '<br>';
+                }
+                
+                explanationText += explanations[questionKey];
+                
+                explanation.innerHTML = explanationText;
+                questionBlock.appendChild(explanation);
+            }
+        }
+
+
+        // Vylepšení klikatelnosti - klik kdekoliv na option vybere odpověď
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                const input = this.querySelector('input[type="radio"], input[type="checkbox"]');
+                if (input && e.target !== input) {
+                    if (input.type === 'radio') {
+                        input.checked = true;
+                    } else if (input.type === 'checkbox') {
+                        input.checked = !input.checked;
+                    }
+                }
+            });
+        });
+
+        // Prevent form submission on Enter key
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
