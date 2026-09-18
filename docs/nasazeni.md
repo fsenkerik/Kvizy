@@ -19,7 +19,7 @@
      ```bash
      node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
      ```
-   - `NEXT_PUBLIC_APP_URL` – adresa aplikace, např. `https://kvizy.vercel.app` (tiskne se na kartičky s PINy)
+   - `NEXT_PUBLIC_APP_URL` – adresa aplikace, např. `https://kvizy-av.vercel.app` (tiskne se na kartičky s PINy)
 4. **Deploy** (nebo push do `main`).
 5. **Migrace databáze** – lokálně, jednorázově (a pak po každé změně schématu):
    ```bash
