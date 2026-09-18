@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { convertHtmlQuiz } from "../scripts/convert-html-quiz";
+import { convertHtmlQuiz } from "@/lib/quiz/convert-html";
 
 const load = (name: string) => readFileSync(new URL(`../content/source-html/${name}`, import.meta.url), "utf8");
 

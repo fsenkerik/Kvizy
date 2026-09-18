@@ -69,4 +69,4 @@ Společná volitelná pole u každé otázky:
 - Indexy v `correct` se počítají od nuly: první možnost = `0`.
 - U `text` uveď víc variant (`["memory", "paměť"]`), aby se uznaly rozumné odpovědi.
 - Nastavení kvízu (počet pokusů, zobrazení odpovědí, otevřeno/zavřeno) není v JSON – mění se v detailu kvízu.
-- Existující HTML kvízy převedeš příkazem `npm run convert-quiz -- cesta/kviz.html`, výsledek najdeš v `content/quizzes/`.
+- Hotový HTML kvíz v původním formátu nahraješ přímo v tématu tlačítkem **Nahrát HTML** – převede se sám. (Totéž z příkazové řádky: `npm run convert-quiz -- cesta/kviz.html` → `content/quizzes/`.)

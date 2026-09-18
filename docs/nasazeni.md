@@ -69,3 +69,8 @@ Bez `DATABASE_URL` aplikace používá PGlite (Postgres ve WASM) – data jsou v
 - **Proměnné prostředí**: Settings → *Environments*. Proměnné s předponou `NEXT_PUBLIC_` ukládej jako typ *Config* (ne *Secret*) – jsou z principu veřejné.
 - **Root Directory** (musí zůstat prázdné – aplikace je v kořeni repa): Settings → *Build and Deployment*.
 - Každý `git push` do `main` spustí nový build automaticky.
+
+## Lokální vývoj vs. produkční databáze
+
+- `.env.local` obsahuje produkční `DATABASE_URL` (Neon) – používají ho skripty `npm run db:migrate` a `npm run create-teacher`.
+- `.env.development.local` má `DATABASE_URL=` prázdné, takže `npm run dev` běží nad lokální PGlite (`.pglite/`) a do ostrých dat nesahá. Chceš-li vývoj proti Neonu, řádek v `.env.development.local` dočasně smaž.

@@ -5,7 +5,7 @@ import { getDb, schema } from "@/lib/db";
 import { requireTeacher } from "@/lib/auth/guards";
 import { getOwnedTopic } from "@/lib/db/access";
 import { deleteTopic, toggleTopicVisible, updateTopic } from "@/app/actions/topics";
-import { createQuizFromJson, moveQuiz, toggleQuizOpen } from "@/app/actions/quizzes";
+import { createQuizFromHtml, createQuizFromJson, moveQuiz, toggleQuizOpen } from "@/app/actions/quizzes";
 import { createLink, deleteLink, updateLink } from "@/app/actions/links";
 import { PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
@@ -93,6 +93,19 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Kvízy</h2>
+            <div className="flex items-center gap-2">
+            <Dialog title="Nahrát hotový HTML kvíz" trigger={<Button size="sm" variant="secondary">Nahrát HTML</Button>}>
+              <p className="mb-3 text-sm text-muted">
+                Vyber soubor <code>.html</code> s kvízem ve tvém původním formátu (např. <code>hardware_kviz.html</code>). Aplikace z něj
+                otázky, správné odpovědi i vysvětlení přečte sama. Po nahrání zkontroluj otázky v detailu kvízu.
+              </p>
+              <ActionForm action={createQuizFromHtml} submitLabel="Nahrát a převést" resetOnSuccess closeDialogOnSuccess>
+                <input type="hidden" name="topicId" value={topic.id} />
+                <Field label="Soubor s kvízem">
+                  <Input name="file" type="file" accept=".html,.htm,text/html" required className="file:mr-3 file:rounded-lg file:border-0 file:bg-primary-soft file:px-3 file:py-1 file:text-primary" />
+                </Field>
+              </ActionForm>
+            </Dialog>
             <Dialog title="Přidat kvíz (JSON)" trigger={<Button size="sm">+ Kvíz</Button>}>
               <p className="mb-3 text-sm text-muted">
                 Vlož JSON ve formátu popsaném v{" "}
@@ -103,8 +116,9 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
               </p>
               <QuizJsonForm action={createQuizFromJson} hidden={{ topicId: topic.id }} submitLabel="Přidat kvíz" closeDialogOnSuccess />
             </Dialog>
+            </div>
           </div>
-          {quizzes.length === 0 && <EmptyState title="Žádný kvíz" hint="Přidej kvíz vložením JSON." />}
+          {quizzes.length === 0 && <EmptyState title="Žádný kvíz" hint="Nahraj hotový HTML kvíz nebo vlož JSON." />}
           <div className="space-y-2">
             {quizzes.map((q, i) => {
               const studentsDone = new Set(q.attempts.map((a) => a.studentId)).size;

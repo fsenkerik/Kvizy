@@ -126,3 +126,42 @@ export async function deleteQuiz(formData: FormData) {
   revalidatePath(`/ucitel/temata/${quiz.topicId}`);
   redirect(`/ucitel/temata/${quiz.topicId}`);
 }
+
+const MAX_HTML_BYTES = 2 * 1024 * 1024;
+
+/** Nahrání hotového HTML kvízu (původní formát) – převede se na JSON a uloží jako nový kvíz. */
+export async function createQuizFromHtml(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const teacher = await requireTeacher();
+  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  if (!topic) return { error: "Téma nenalezeno." };
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "Vyber soubor .html s kvízem." };
+  if (file.size > MAX_HTML_BYTES) return { error: "Soubor je příliš velký (max 2 MB)." };
+
+  let quiz;
+  try {
+    const { convertHtmlQuiz } = await import("@/lib/quiz/convert-html");
+    quiz = convertHtmlQuiz(await file.text());
+  } catch (e) {
+    return { error: `Soubor se nepodařilo převést: ${(e as Error).message}` };
+  }
+
+  const db = await getDb();
+  const [{ maxOrder }] = await db
+    .select({ maxOrder: max(schema.quizzes.sortOrder) })
+    .from(schema.quizzes)
+    .where(eq(schema.quizzes.topicId, topic.id));
+  await db.insert(schema.quizzes).values({
+    topicId: topic.id,
+    title: quiz.title,
+    description: quiz.description ?? null,
+    questions: quiz.questions,
+    maxAttempts: 1,
+    showAnswersAfter: true,
+    isOpen: true,
+    sortOrder: (maxOrder ?? 0) + 1,
+  });
+  revalidatePath(`/ucitel/temata/${topic.id}`);
+  return { success: `Kvíz „${quiz.title}“ nahrán (${quiz.questions.length} otázek).` };
+}
