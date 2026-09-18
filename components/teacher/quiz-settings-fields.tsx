@@ -8,10 +8,12 @@ export function QuizSettingsFields({
   maxAttempts,
   showAnswersAfter,
   isOpen,
+  points,
 }: {
   maxAttempts: number | null;
   showAnswersAfter: boolean;
   isOpen: boolean;
+  points: number;
 }) {
   const initialMode = maxAttempts === null ? "unlimited" : maxAttempts === 1 ? "one" : "custom";
   const [mode, setMode] = useState(initialMode);
@@ -41,6 +43,13 @@ export function QuizSettingsFields({
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="isOpen" defaultChecked={isOpen} className="accent-[var(--primary)]" />
         Kvíz je otevřený (studenti ho vidí a mohou vyplňovat)
+      </label>
+      <label className="block space-y-1.5">
+        <span className="text-sm font-medium">Body za kvíz při 100 %</span>
+        <div className="flex items-center gap-2">
+          <Input name="points" type="number" min={0} max={1000} defaultValue={points} className="w-24" />
+          <span className="text-xs text-muted">Student dostane body podle procent z posledního pokusu (0 = bez bodů).</span>
+        </div>
       </label>
     </div>
   );

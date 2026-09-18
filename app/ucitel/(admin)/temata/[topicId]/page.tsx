@@ -132,7 +132,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                       <p className="text-xs text-muted">
                         {plural(q.questions.length, ["otázka", "otázky", "otázek"])} ·{" "}
                         {q.maxAttempts === null ? "neomezeně pokusů" : plural(q.maxAttempts, ["pokus", "pokusy", "pokusů"])} ·{" "}
-                        {q.showAnswersAfter ? "zobrazuje odpovědi" : "bez odpovědí"} · vyplnilo {studentsDone}
+                        {q.showAnswersAfter ? "zobrazuje odpovědi" : "bez odpovědí"} · ⭐ {q.points} b. · vyplnilo {studentsDone}
                         {!q.isOpen && " · uzavřeno"}
                       </p>
                     </div>
@@ -182,6 +182,9 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                 <Field label="Popis (volitelné)">
                   <Textarea name="description" className="min-h-16" placeholder="Co má student udělat" />
                 </Field>
+                <Field label="Body za splnění" hint="Student je dostane, když odkaz otevře a zůstane u něj alespoň 45 s. 0 = bez bodů.">
+                  <Input name="points" type="number" min={0} max={1000} defaultValue={5} className="w-24" />
+                </Field>
               </ActionForm>
             </Dialog>
           </div>
@@ -194,7 +197,10 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                     <a href={l.url} target="_blank" rel="noopener noreferrer" className="font-medium hover:text-primary">
                       🔗 {l.title}
                     </a>
-                    <p className="truncate text-xs text-muted">{l.description || l.url}</p>
+                    <p className="truncate text-xs text-muted">
+                      {l.points > 0 ? `⭐ ${l.points} b. · ` : ""}
+                      {l.description || l.url}
+                    </p>
                   </div>
                   <div className="flex items-center gap-1">
                     <Dialog title="Upravit odkaz" trigger={<Button variant="ghost" size="sm">Upravit</Button>}>
@@ -208,6 +214,9 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                         </Field>
                         <Field label="Popis">
                           <Textarea name="description" className="min-h-16" defaultValue={l.description ?? ""} />
+                        </Field>
+                        <Field label="Body za splnění">
+                          <Input name="points" type="number" min={0} max={1000} defaultValue={l.points} className="w-24" />
                         </Field>
                       </ActionForm>
                     </Dialog>

@@ -94,6 +94,8 @@ export const quizzes = pgTable(
     maxAttempts: integer("max_attempts"),
     showAnswersAfter: boolean("show_answers_after").notNull().default(true),
     isOpen: boolean("is_open").notNull().default(true),
+    /** Body při 100 % (bodování pro studenty). */
+    points: integer("points").notNull().default(10),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
@@ -115,6 +117,8 @@ export const links = pgTable(
     title: text("title").notNull(),
     url: text("url").notNull(),
     description: text("description"),
+    /** Body za splnění (otevření odkazu a setrvání). 0 = bez bodů. */
+    points: integer("points").notNull().default(5),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: createdAt(),
   },
@@ -144,6 +148,49 @@ export const attempts = pgTable(
     index("attempts_student_idx").on(t.studentId),
     uniqueIndex("attempts_quiz_student_number_idx").on(t.quizId, t.studentId, t.attemptNumber),
   ],
+);
+
+/** Návštěva odkazu studentem: kliknutí a (po uplynutí čekací doby) splnění. */
+export const linkVisits = pgTable(
+  "link_visits",
+  {
+    id: id(),
+    linkId: text("link_id")
+      .notNull()
+      .references(() => links.id, { onDelete: "cascade" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    clickedAt: timestamp("clicked_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("link_visits_link_student_idx").on(t.linkId, t.studentId)],
+);
+
+/**
+ * Bodová kniha studenta – jeden záznam na zdroj (kvíz / odkaz). Přežije skrytí i smazání zdroje
+ * (FK se nastaví na null, sourceKey a label zůstanou), takže celkové body studenta nemizí.
+ */
+export const pointEvents = pgTable(
+  "point_events",
+  {
+    id: id(),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    /** "quiz:<id>" nebo "link:<id>" */
+    sourceKey: text("source_key").notNull(),
+    quizId: text("quiz_id").references(() => quizzes.id, { onDelete: "set null" }),
+    linkId: text("link_id").references(() => links.id, { onDelete: "set null" }),
+    label: text("label").notNull(),
+    points: integer("points").notNull(),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [uniqueIndex("point_events_student_source_idx").on(t.studentId, t.sourceKey), index("point_events_student_idx").on(t.studentId)],
 );
 
 export const teachersRelations = relations(teachers, ({ many }) => ({ groups: many(groups) }));
@@ -185,3 +232,5 @@ export type Topic = typeof topics.$inferSelect;
 export type Quiz = typeof quizzes.$inferSelect;
 export type Link = typeof links.$inferSelect;
 export type Attempt = typeof attempts.$inferSelect;
+export type LinkVisit = typeof linkVisits.$inferSelect;
+export type PointEvent = typeof pointEvents.$inferSelect;

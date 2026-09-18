@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
+import { getTotalsForStudents } from "@/lib/points";
 
 export type StudentQuizStat = {
   count: number;
@@ -59,7 +60,8 @@ export async function getClassResults(classId: string, groupId: string) {
           where: and(inArray(schema.attempts.studentId, studentIds), inArray(schema.attempts.quizId, quizIds)),
         })
       : [];
-  return { students, quizzes, stats: summarize(attempts) };
+  const totals = await getTotalsForStudents(studentIds);
+  return { students, quizzes, stats: summarize(attempts), totals };
 }
 
 /** Výsledky jednoho kvízu napříč třídami skupiny. */

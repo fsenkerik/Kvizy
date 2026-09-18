@@ -18,20 +18,32 @@ export async function getStudentTopics(groupId: string, studentId: string) {
       quizzes: {
         where: eq(schema.quizzes.isOpen, true),
         orderBy: [asc(schema.quizzes.sortOrder), asc(schema.quizzes.createdAt)],
-        columns: { id: true, title: true, description: true, questions: true, maxAttempts: true, showAnswersAfter: true },
+        columns: { id: true, title: true, description: true, questions: true, maxAttempts: true, showAnswersAfter: true, points: true },
       },
       links: { orderBy: [asc(schema.links.sortOrder), asc(schema.links.createdAt)] },
     },
   });
 
   const quizIds = topics.flatMap((t) => t.quizzes.map((q) => q.id));
-  const attempts = quizIds.length
-    ? await db.query.attempts.findMany({
-        where: and(eq(schema.attempts.studentId, studentId), inArray(schema.attempts.quizId, quizIds)),
-        orderBy: [desc(schema.attempts.submittedAt)],
-        columns: { id: true, quizId: true, score: true, maxScore: true, percent: true },
-      })
-    : [];
+  const linkIds = topics.flatMap((t) => t.links.map((l) => l.id));
+  const [attempts, events, visits] = await Promise.all([
+    quizIds.length
+      ? db.query.attempts.findMany({
+          where: and(eq(schema.attempts.studentId, studentId), inArray(schema.attempts.quizId, quizIds)),
+          orderBy: [desc(schema.attempts.submittedAt)],
+          columns: { id: true, quizId: true, score: true, maxScore: true, percent: true },
+        })
+      : [],
+    db.query.pointEvents.findMany({ where: eq(schema.pointEvents.studentId, studentId), columns: { sourceKey: true, points: true } }),
+    linkIds.length
+      ? db.query.linkVisits.findMany({
+          where: and(eq(schema.linkVisits.studentId, studentId), inArray(schema.linkVisits.linkId, linkIds)),
+          columns: { linkId: true, completedAt: true },
+        })
+      : [],
+  ]);
+  const pointsBySource = new Map(events.map((e) => [e.sourceKey, e.points]));
+  const completedLinks = new Set(visits.filter((v) => v.completedAt).map((v) => v.linkId));
 
   const summaries = new Map<string, AttemptSummary>();
   for (const a of attempts) {
@@ -51,8 +63,12 @@ export async function getStudentTopics(groupId: string, studentId: string) {
       questionCount: q.questions.length,
       maxAttempts: q.maxAttempts,
       showAnswersAfter: q.showAnswersAfter,
+      points: q.points,
+      /** Body aktuálně získané z tohoto kvízu (podle posledního pokusu). */
+      earnedPoints: pointsBySource.get(`quiz:${q.id}`) ?? null,
       summary: summaries.get(q.id) ?? { count: 0, best: null, lastAttemptId: null },
     })),
+    links: t.links.map((l) => ({ ...l, completed: completedLinks.has(l.id) })),
   }));
 }
 

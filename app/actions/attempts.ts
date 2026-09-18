@@ -8,6 +8,7 @@ import { getOwnedAttempt, getOwnedQuiz, getOwnedStudent } from "@/lib/db/access"
 import { currentStudent, requireTeacher } from "@/lib/auth/guards";
 import { str } from "./types";
 import { buildReview, grade } from "@/lib/quiz/engine";
+import { getPointsSummary, quizPoints, syncQuizPoints, syncQuizPointsForAll, type PointsSummary } from "@/lib/points";
 import type { AnswerMap, ReviewQuestion } from "@/lib/quiz/types";
 
 export type SubmitResult =
@@ -21,6 +22,8 @@ export type SubmitResult =
       attemptsLeft: number | null;
       /** Jen když má kvíz zapnuté zobrazení správných odpovědí. */
       review: ReviewQuestion[] | null;
+      /** Body za tento pokus a nový celkový stav. */
+      points: PointsSummary & { earned: number; quizMax: number };
     };
 
 /** Sanitizace odpovědí z klienta – necháme jen povolené tvary hodnot. */
@@ -74,6 +77,11 @@ export async function submitAttempt(quizId: string, rawAnswers: unknown): Promis
     })
     .returning({ id: schema.attempts.id });
 
+  // Body: počítá se poslední pokus, ne nejlepší.
+  const earned = quizPoints(result.percent, quiz.points);
+  await syncQuizPoints(student.id, quiz);
+  const summary = await getPointsSummary(student.id, student.class.groupId);
+
   return {
     ok: true,
     attemptId: attempt.id,
@@ -82,6 +90,7 @@ export async function submitAttempt(quizId: string, rawAnswers: unknown): Promis
     percent: result.percent,
     attemptsLeft: quiz.maxAttempts === null ? null : quiz.maxAttempts - used - 1,
     review: quiz.showAnswersAfter ? buildReview(quiz.questions, quiz.id, answers, result.results) : null,
+    points: { ...summary, earned, quizMax: quiz.points },
   };
 }
 
@@ -99,6 +108,7 @@ export async function deleteAttempt(formData: FormData) {
   if (!attempt) return;
   const db = await getDb();
   await db.delete(schema.attempts).where(eq(schema.attempts.id, attempt.id));
+  await syncQuizPoints(attempt.studentId, attempt.quiz);
   revalidateQuizResults(attempt.quizId, attempt.quiz.topicId);
   revalidatePath(`/ucitel/tridy/${attempt.student.classId}/vysledky`);
   redirect(`/ucitel/kvizy/${attempt.quizId}/vysledky`);
@@ -114,6 +124,7 @@ export async function deleteStudentQuizAttempts(formData: FormData) {
   if (!quiz || !student) return;
   const db = await getDb();
   await db.delete(schema.attempts).where(and(eq(schema.attempts.quizId, quiz.id), eq(schema.attempts.studentId, student.id)));
+  await syncQuizPoints(student.id, quiz);
   revalidateQuizResults(quiz.id, quiz.topicId);
   revalidatePath(`/ucitel/tridy/${student.classId}/vysledky`);
 }
@@ -125,5 +136,6 @@ export async function deleteQuizAttempts(formData: FormData) {
   if (!quiz) return;
   const db = await getDb();
   await db.delete(schema.attempts).where(eq(schema.attempts.quizId, quiz.id));
+  await syncQuizPointsForAll(quiz);
   revalidateQuizResults(quiz.id, quiz.topicId);
 }

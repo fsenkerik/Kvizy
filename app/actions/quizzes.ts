@@ -7,6 +7,7 @@ import { getDb, schema } from "@/lib/db";
 import { getOwnedQuiz, getOwnedTopic } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { parseQuizJson } from "@/lib/quiz/schema";
+import { syncQuizPointsForAll } from "@/lib/points";
 import { type ActionState, intOrNull, str } from "./types";
 
 export type QuizJsonState = { error?: string; success?: string; errors?: string[] } | undefined;
@@ -70,6 +71,9 @@ export async function updateQuizSettings(_prev: ActionState, formData: FormData)
     maxAttempts = n;
   }
 
+  const points = intOrNull(formData, "points");
+  if (points === null || points < 0 || points > 1000) return { error: "Body za kvíz musí být číslo 0–1000." };
+
   const db = await getDb();
   await db
     .update(schema.quizzes)
@@ -77,8 +81,10 @@ export async function updateQuizSettings(_prev: ActionState, formData: FormData)
       maxAttempts,
       showAnswersAfter: formData.get("showAnswersAfter") === "on",
       isOpen: formData.get("isOpen") === "on",
+      points,
     })
     .where(eq(schema.quizzes.id, quiz.id));
+  if (points !== quiz.points) await syncQuizPointsForAll({ id: quiz.id, title: quiz.title, points });
   revalidatePath(`/ucitel/kvizy/${quiz.id}`);
   revalidatePath(`/ucitel/temata/${quiz.topicId}`);
   return { success: "Nastavení uloženo." };

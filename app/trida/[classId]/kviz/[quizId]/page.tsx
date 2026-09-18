@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireStudent } from "@/lib/auth/guards";
 import { countStudentAttempts, getQuizForStudent } from "@/lib/db/queries";
 import { toPublicQuestions } from "@/lib/quiz/engine";
-import { Shell, PageTitle } from "@/components/shell";
+import { PageTitle } from "@/components/shell";
+import { StudentShell } from "@/components/student/student-shell";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { plural } from "@/lib/utils";
 
@@ -25,19 +25,14 @@ export default async function QuizPage(props: PageProps<"/trida/[classId]/kviz/[
   const questions = toPublicQuestions(quiz.questions, quiz.id);
 
   return (
-    <Shell
-      right={
-        <Link href={`/trida/${classId}`} className="text-sm text-muted hover:text-text">
-          ← Témata
-        </Link>
-      }
-    >
+    <StudentShell student={student} classId={classId} groupId={student.class.groupId} backHref={`/trida/${classId}`}>
       <PageTitle
         title={quiz.title}
         subtitle={
           <>
             {quiz.topic.title} · {plural(questions.length, ["otázka", "otázky", "otázek"])}
             {quiz.maxAttempts !== null && ` · pokus ${used + 1} z ${quiz.maxAttempts}`}
+            {quiz.points > 0 && ` · až ⭐ ${quiz.points} b.`}
             {quiz.description && (
               <>
                 <br />
@@ -48,6 +43,6 @@ export default async function QuizPage(props: PageProps<"/trida/[classId]/kviz/[
         }
       />
       <QuizRunner quizId={quiz.id} classId={classId} questions={questions} />
-    </Shell>
+    </StudentShell>
   );
 }

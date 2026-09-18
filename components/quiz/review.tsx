@@ -55,8 +55,9 @@ function ReviewBody({ item, showCorrect }: { item: ReviewQuestion; showCorrect: 
   const q = item.question;
   const a = item.answer;
 
-  const optionRow = (label: string, chosen: boolean, isCorrect: boolean) => (
+  const optionRow = (label: string, chosen: boolean, isCorrect: boolean, key: string | number = label) => (
     <div
+      key={key}
       className={cn(
         "flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm",
         chosen && isCorrect && showCorrect && "border-success-fg/50 bg-success-bg text-success-fg",
@@ -79,13 +80,13 @@ function ReviewBody({ item, showCorrect }: { item: ReviewQuestion; showCorrect: 
     case "single":
       return (
         <div className="space-y-1.5">
-          {q.options.map((opt, i) => optionRow(opt, a === i, item.correctAnswer === i))}
+          {q.options.map((opt, i) => optionRow(opt, a === i, item.correctAnswer === i, i))}
         </div>
       );
     case "multi": {
       const chosen = Array.isArray(a) ? (a as number[]) : [];
       const correct = Array.isArray(item.correctAnswer) ? (item.correctAnswer as number[]) : [];
-      return <div className="space-y-1.5">{q.options.map((opt, i) => optionRow(opt, chosen.includes(i), correct.includes(i)))}</div>;
+      return <div className="space-y-1.5">{q.options.map((opt, i) => optionRow(opt, chosen.includes(i), correct.includes(i), i))}</div>;
     }
     case "boolean":
       return (

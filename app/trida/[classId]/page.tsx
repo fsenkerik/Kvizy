@@ -4,13 +4,14 @@ import { and, asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { currentStudent } from "@/lib/auth/guards";
 import { getStudentTopics } from "@/lib/db/queries";
-import { studentLogout } from "@/app/actions/auth";
 import { Shell, PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonClass } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty";
 import { StudentLoginForm } from "@/components/student/login-form";
+import { StudentShell } from "@/components/student/student-shell";
+import { LinkCard } from "@/components/student/link-card";
 import { plural } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -51,20 +52,8 @@ export default async function ClassPage(props: PageProps<"/trida/[classId]">) {
   const topics = await getStudentTopics(cls.groupId, student.id);
 
   return (
-    <Shell
-      right={
-        <form action={studentLogout} className="flex items-center gap-3">
-          <input type="hidden" name="classId" value={cls.id} />
-          <span className="hidden text-sm text-muted sm:inline">
-            {student.firstName} {student.lastName}
-          </span>
-          <Button variant="secondary" size="sm" type="submit">
-            Odhlásit
-          </Button>
-        </form>
-      }
-    >
-      <PageTitle title={`Třída ${cls.name}`} subtitle={`Ahoj, ${student.firstName}! Tady jsou tvoje témata a kvízy.`} />
+    <StudentShell student={student} classId={cls.id} groupId={cls.groupId}>
+      <PageTitle title={`Třída ${cls.name}`} subtitle={`Ahoj, ${student.firstName}! Tady jsou tvoje témata a kvízy. Za každý kvíz a cvičení sbíráš body.`} />
 
       {topics.length === 0 && <EmptyState title="Zatím tu nic není" hint="Učitel ještě nepřidal žádné téma." />}
 
@@ -99,6 +88,16 @@ export default async function ClassPage(props: PageProps<"/trida/[classId]">) {
                             : attemptsLeft === 0
                               ? "žádný další pokus"
                               : `zbývá ${plural(attemptsLeft!, ["pokus", "pokusy", "pokusů"])}`}
+                          {quiz.points > 0 && (
+                            <>
+                              {" · "}
+                              {quiz.earnedPoints !== null ? (
+                                <span className="font-medium text-success-fg">⭐ {quiz.earnedPoints} / {quiz.points} b.</span>
+                              ) : (
+                                <span>až ⭐ {quiz.points} b.</span>
+                              )}
+                            </>
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -130,15 +129,7 @@ export default async function ClassPage(props: PageProps<"/trida/[classId]">) {
                   <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Cvičení a odkazy</h3>
                   <ul className="space-y-2">
                     {topic.links.map((link) => (
-                      <li key={link.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border px-4 py-3">
-                        <div className="min-w-0">
-                          <p className="font-medium">🔗 {link.title}</p>
-                          {link.description && <p className="text-xs text-muted">{link.description}</p>}
-                        </div>
-                        <a href={link.url} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary", "sm")}>
-                          Otevřít ↗
-                        </a>
-                      </li>
+                      <LinkCard key={link.id} link={link} completed={link.completed} />
                     ))}
                   </ul>
                 </>
@@ -147,6 +138,6 @@ export default async function ClassPage(props: PageProps<"/trida/[classId]">) {
           </Card>
         ))}
       </div>
-    </Shell>
+    </StudentShell>
   );
 }

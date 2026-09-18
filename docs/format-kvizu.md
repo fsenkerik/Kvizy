@@ -70,3 +70,10 @@ Společná volitelná pole u každé otázky:
 - U `text` uveď víc variant (`["memory", "paměť"]`), aby se uznaly rozumné odpovědi.
 - Nastavení kvízu (počet pokusů, zobrazení odpovědí, otevřeno/zavřeno) není v JSON – mění se v detailu kvízu.
 - Hotový HTML kvíz v původním formátu nahraješ přímo v tématu tlačítkem **Nahrát HTML** – převede se sám. (Totéž z příkazové řádky: `npm run convert-quiz -- cesta/kviz.html` → `content/quizzes/`.)
+
+## Body pro studenty
+
+- U každého kvízu nastavíš **Body za kvíz při 100 %** (výchozí 10). Student dostane body podle procent z **posledního** pokusu (85 % z 10 = 9 b.); další pokus tedy body přepíše, nesčítá.
+- U odkazu na cvičení nastavíš **Body za splnění** (výchozí 5). Student je dostane, když odkaz otevře a nechá stránku Kvízovny otevřenou alespoň 45 s – čas hlídá server.
+- Body se vedou v samostatné „bodové knize“, takže zůstanou i po skrytí tématu nebo smazání kvízu. Smazání pokusů studenta (Výsledky → Smazat) body z daného kvízu přepočítá.
+- Student vidí body v hlavičce (⭐) s ukazatelem vůči momentálně dosažitelnému maximu; učitel v matici *Výsledky třídy* ve sloupci ⭐ Body.

@@ -4,7 +4,9 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { requireStudent } from "@/lib/auth/guards";
 import { buildReview, verdictFor } from "@/lib/quiz/engine";
-import { Shell, PageTitle } from "@/components/shell";
+import { PageTitle } from "@/components/shell";
+import { StudentShell } from "@/components/student/student-shell";
+import { quizPoints } from "@/lib/points";
 import { AttemptReview } from "@/components/quiz/review";
 import { Alert } from "@/components/ui/alert";
 import { buttonClass } from "@/components/ui/button";
@@ -32,7 +34,7 @@ export default async function QuizResultPage(props: PageProps<"/trida/[classId]/
   const attemptsLeft = quiz.maxAttempts === null ? null : Math.max(0, quiz.maxAttempts - attempts.length);
 
   return (
-    <Shell right={<Link href={`/trida/${classId}`} className="text-sm text-muted hover:text-text">← Témata</Link>}>
+    <StudentShell student={student} classId={classId} groupId={student.class.groupId} backHref={`/trida/${classId}`}>
       <PageTitle title={quiz.title} subtitle={`${quiz.topic.title} · poslední pokus ${formatDate(last.submittedAt)}`} />
 
       <div className="mb-6 rounded-card bg-primary-soft p-8 text-center">
@@ -43,6 +45,9 @@ export default async function QuizResultPage(props: PageProps<"/trida/[classId]/
           {last.score} / {last.maxScore}
         </p>
         <p className="mt-1 text-2xl text-muted">{last.percent} %</p>
+        {quiz.points > 0 && (
+          <p className="mt-2 text-sm font-medium text-success-fg">⭐ {quizPoints(last.percent, quiz.points)} z {quiz.points} bodů (počítá se poslední pokus)</p>
+        )}
         {attempts.length > 1 && best.id !== last.id && (
           <p className="mt-2 text-sm text-muted">
             Nejlepší pokus: {best.score} / {best.maxScore} ({best.percent} %)
@@ -63,6 +68,6 @@ export default async function QuizResultPage(props: PageProps<"/trida/[classId]/
       ) : (
         <Alert tone="info">Učitel u tohoto kvízu nezobrazuje správné odpovědi.</Alert>
       )}
-    </Shell>
+    </StudentShell>
   );
 }

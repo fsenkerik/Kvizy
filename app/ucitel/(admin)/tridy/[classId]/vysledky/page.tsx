@@ -16,7 +16,7 @@ export default async function ClassResultsPage(props: PageProps<"/ucitel/tridy/[
   const cls = await getOwnedClass(teacher.id, classId);
   if (!cls) notFound();
 
-  const { students, quizzes, stats } = await getClassResults(cls.id, cls.groupId);
+  const { students, quizzes, stats, totals } = await getClassResults(cls.id, cls.groupId);
 
   return (
     <>
@@ -25,7 +25,7 @@ export default async function ClassResultsPage(props: PageProps<"/ucitel/tridy/[
         <Link href={`/ucitel/skupiny/${cls.groupId}`} className="hover:text-text">{cls.group.name}</Link> /{" "}
         <Link href={`/ucitel/tridy/${cls.id}`} className="hover:text-text">{cls.name}</Link> / Výsledky
       </p>
-      <PageTitle title={`Výsledky – ${cls.name}`} subtitle="Nejlepší pokus každého studenta. Kliknutím na buňku otevřeš revizi." />
+      <PageTitle title={`Výsledky – ${cls.name}`} subtitle="Nejlepší pokus každého studenta; body se počítají z posledního pokusu a z odkazů. Kliknutím na buňku otevřeš revizi." />
 
       {(students.length === 0 || quizzes.length === 0) && (
         <EmptyState title="Zatím není co zobrazit" hint="Potřebuješ alespoň jednoho studenta a jeden kvíz ve skupině." />
@@ -37,6 +37,7 @@ export default async function ClassResultsPage(props: PageProps<"/ucitel/tridy/[
             <thead className="bg-surface-2 text-left text-xs text-muted">
               <tr>
                 <th className="sticky left-0 bg-surface-2 px-4 py-2 font-medium uppercase tracking-wide">Student</th>
+                <th className="px-3 py-2 font-medium uppercase tracking-wide">⭐ Body</th>
                 {quizzes.map((q) => (
                   <th key={q.id} className="px-3 py-2 font-medium">
                     <Link href={`/ucitel/kvizy/${q.id}/vysledky`} className="hover:text-text">
@@ -57,6 +58,7 @@ export default async function ClassResultsPage(props: PageProps<"/ucitel/tridy/[
                     <td className="sticky left-0 bg-surface px-4 py-2 font-medium">
                       {s.lastName} {s.firstName}
                     </td>
+                    <td className="px-3 py-2 font-semibold text-primary">{totals.get(s.id) ?? 0}</td>
                     {quizzes.map((q) => (
                       <td key={q.id} className="px-3 py-2">
                         <ScoreCell stat={statFor(stats, s.id, q.id)} />

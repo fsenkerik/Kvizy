@@ -61,7 +61,7 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
               <h2 className="mb-4 text-lg font-semibold">Nastavení</h2>
               <ActionForm action={updateQuizSettings} submitLabel="Uložit nastavení">
                 <input type="hidden" name="quizId" value={quiz.id} />
-                <QuizSettingsFields maxAttempts={quiz.maxAttempts} showAnswersAfter={quiz.showAnswersAfter} isOpen={quiz.isOpen} />
+                <QuizSettingsFields maxAttempts={quiz.maxAttempts} showAnswersAfter={quiz.showAnswersAfter} isOpen={quiz.isOpen} points={quiz.points} />
               </ActionForm>
             </CardBody>
           </Card>

@@ -10,6 +10,8 @@ import { isAnswered, verdictFor } from "@/lib/quiz/engine";
 import { QUESTION_TYPE_LABELS, type AnswerMap, type AnswerValue, type PublicQuestion } from "@/lib/quiz/types";
 import { QuestionInput } from "./question-input";
 import { AttemptReview } from "./review";
+import { usePoints } from "@/components/student/points-context";
+import { Confetti } from "@/components/student/confetti";
 
 export function QuizRunner({
   quizId,
@@ -24,6 +26,7 @@ export function QuizRunner({
   const [result, setResult] = useState<Extract<SubmitResult, { ok: true }> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const { award } = usePoints();
 
   const answeredCount = useMemo(() => questions.filter((q) => isAnswered(q, answers[q.id])).length, [questions, answers]);
 
@@ -43,18 +46,27 @@ export function QuizRunner({
       }
       setResult(res);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      // Body v hlavičce se přičtou s malým zpožděním, aby animace navazovala na zobrazení výsledku.
+      window.setTimeout(() => award({ total: res.points.total, max: res.points.max, earned: res.points.earned }), 400);
     });
   }
 
   if (result) {
     return (
       <div className="space-y-6">
-        <div className="rounded-card bg-primary-soft p-8 text-center">
+        <div className="relative rounded-card bg-primary-soft p-8 text-center">
+          {result.points.earned > 0 && <Confetti pieces={result.percent === 100 ? 48 : 28} seed={result.score + 1} />}
           <p className="text-sm font-medium uppercase tracking-wide text-muted">Tvůj výsledek</p>
           <p className="mt-2 text-5xl font-semibold tracking-tight">
             {result.score} / {result.maxScore}
           </p>
           <p className="mt-1 text-2xl text-muted">{result.percent} %</p>
+          {result.points.quizMax > 0 && (
+            <p className="kv-pop mt-3 inline-flex items-center gap-2 rounded-full bg-surface px-4 py-1.5 text-lg font-semibold text-success-fg">
+              ⭐ +{result.points.earned} {result.points.earned === 1 ? "bod" : result.points.earned >= 2 && result.points.earned <= 4 ? "body" : "bodů"}
+              <span className="text-sm font-normal text-muted">z {result.points.quizMax}</span>
+            </p>
+          )}
           <p className="mt-4 text-base">{verdictFor(result.percent)}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link href={`/trida/${classId}`} className={buttonClass("primary")}>
