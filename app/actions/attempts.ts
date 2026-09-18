@@ -1,8 +1,12 @@
 "use server";
 
 import { and, count, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { currentStudent } from "@/lib/auth/guards";
+import { getOwnedAttempt, getOwnedQuiz, getOwnedStudent } from "@/lib/db/access";
+import { currentStudent, requireTeacher } from "@/lib/auth/guards";
+import { str } from "./types";
 import { buildReview, grade } from "@/lib/quiz/engine";
 import type { AnswerMap, ReviewQuestion } from "@/lib/quiz/types";
 
@@ -79,4 +83,47 @@ export async function submitAttempt(quizId: string, rawAnswers: unknown): Promis
     attemptsLeft: quiz.maxAttempts === null ? null : quiz.maxAttempts - used - 1,
     review: quiz.showAnswersAfter ? buildReview(quiz.questions, quiz.id, answers, result.results) : null,
   };
+}
+
+/* ---------- Mazání pokusů (učitel) ---------- */
+
+function revalidateQuizResults(quizId: string, topicId: string) {
+  revalidatePath(`/ucitel/kvizy/${quizId}/vysledky`);
+  revalidatePath(`/ucitel/temata/${topicId}`);
+}
+
+/** Smaže jeden konkrétní pokus. */
+export async function deleteAttempt(formData: FormData) {
+  const teacher = await requireTeacher();
+  const attempt = await getOwnedAttempt(teacher.id, str(formData, "attemptId"));
+  if (!attempt) return;
+  const db = await getDb();
+  await db.delete(schema.attempts).where(eq(schema.attempts.id, attempt.id));
+  revalidateQuizResults(attempt.quizId, attempt.quiz.topicId);
+  revalidatePath(`/ucitel/tridy/${attempt.student.classId}/vysledky`);
+  redirect(`/ucitel/kvizy/${attempt.quizId}/vysledky`);
+}
+
+/** Smaže všechny pokusy jednoho studenta u jednoho kvízu (student může kvíz vyplnit znovu). */
+export async function deleteStudentQuizAttempts(formData: FormData) {
+  const teacher = await requireTeacher();
+  const [quiz, student] = await Promise.all([
+    getOwnedQuiz(teacher.id, str(formData, "quizId")),
+    getOwnedStudent(teacher.id, str(formData, "studentId")),
+  ]);
+  if (!quiz || !student) return;
+  const db = await getDb();
+  await db.delete(schema.attempts).where(and(eq(schema.attempts.quizId, quiz.id), eq(schema.attempts.studentId, student.id)));
+  revalidateQuizResults(quiz.id, quiz.topicId);
+  revalidatePath(`/ucitel/tridy/${student.classId}/vysledky`);
+}
+
+/** Smaže všechny pokusy všech studentů u kvízu. */
+export async function deleteQuizAttempts(formData: FormData) {
+  const teacher = await requireTeacher();
+  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  if (!quiz) return;
+  const db = await getDb();
+  await db.delete(schema.attempts).where(eq(schema.attempts.quizId, quiz.id));
+  revalidateQuizResults(quiz.id, quiz.topicId);
 }

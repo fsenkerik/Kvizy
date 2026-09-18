@@ -8,6 +8,8 @@ import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty";
 import { ScoreCell } from "@/components/teacher/score-cell";
 import { formatDate } from "@/lib/utils";
+import { ConfirmButton } from "@/components/teacher/confirm-button";
+import { deleteQuizAttempts, deleteStudentQuizAttempts } from "@/app/actions/attempts";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Výsledky kvízu" };
@@ -34,9 +36,19 @@ export default async function QuizResultsPage(props: PageProps<"/ucitel/kvizy/[q
         title={`Výsledky – ${quiz.title}`}
         subtitle={`Vyplnilo ${doneCount} studentů · ${attempts.length} pokusů${avg !== null ? ` · průměr ${avg} %` : ""}`}
         actions={
-          <a href={`/ucitel/kvizy/${quiz.id}/vysledky/export`} className={buttonClass("secondary")}>
-            Export CSV
-          </a>
+          <>
+            <a href={`/ucitel/kvizy/${quiz.id}/vysledky/export`} className={buttonClass("secondary")}>
+              Export CSV
+            </a>
+            {attempts.length > 0 && (
+              <form action={deleteQuizAttempts}>
+                <input type="hidden" name="quizId" value={quiz.id} />
+                <ConfirmButton variant="danger" message={`Smazat všech ${attempts.length} pokusů u kvízu „${quiz.title}“? Studenti ho budou moci vyplnit znovu. Nelze vrátit.`}>
+                  Smazat všechny pokusy
+                </ConfirmButton>
+              </form>
+            )}
+          </>
         }
       />
 
@@ -58,7 +70,7 @@ export default async function QuizResultsPage(props: PageProps<"/ucitel/kvizy/[q
                       <th className="px-4 py-2">Nejlepší</th>
                       <th className="px-4 py-2">Pokusů</th>
                       <th className="px-4 py-2">Poslední odevzdání</th>
-                      <th className="px-4 py-2 text-right">Revize</th>
+                      <th className="px-4 py-2 text-right">Akce</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -75,11 +87,20 @@ export default async function QuizResultsPage(props: PageProps<"/ucitel/kvizy/[q
                           </td>
                           <td className="px-4 py-2">{stat.count}</td>
                           <td className="px-4 py-2 text-muted">{stat.last ? formatDate(stat.last.submittedAt) : "–"}</td>
-                          <td className="px-4 py-2 text-right">
+                          <td className="px-4 py-2">
                             {stat.last && (
-                              <Link href={`/ucitel/pokusy/${stat.last.attemptId}`} className={buttonClass("secondary", "sm")}>
-                                Zobrazit
-                              </Link>
+                              <div className="flex items-center justify-end gap-1">
+                                <Link href={`/ucitel/pokusy/${stat.last.attemptId}`} className={buttonClass("secondary", "sm")}>
+                                  Zobrazit
+                                </Link>
+                                <form action={deleteStudentQuizAttempts}>
+                                  <input type="hidden" name="quizId" value={quiz.id} />
+                                  <input type="hidden" name="studentId" value={s.id} />
+                                  <ConfirmButton variant="ghost" size="sm" className="text-danger-fg" message={`Smazat všechny pokusy (${stat.count}) studenta ${s.firstName} ${s.lastName} u tohoto kvízu? Bude ho moci vyplnit znovu.`}>
+                                    Smazat
+                                  </ConfirmButton>
+                                </form>
+                              </div>
                             )}
                           </td>
                         </tr>

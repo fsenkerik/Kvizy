@@ -8,6 +8,8 @@ import { buildReview } from "@/lib/quiz/engine";
 import { PageTitle } from "@/components/shell";
 import { AttemptReview } from "@/components/quiz/review";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmButton } from "@/components/teacher/confirm-button";
+import { deleteAttempt } from "@/app/actions/attempts";
 import { cn, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -43,9 +45,17 @@ export default async function AttemptPage(props: PageProps<"/ucitel/pokusy/[atte
           </>
         }
         actions={
-          <Badge tone={attempt.percent >= 75 ? "success" : attempt.percent >= 50 ? "warning" : "danger"} className="px-3 py-1 text-base">
-            {attempt.score} / {attempt.maxScore} · {attempt.percent} %
-          </Badge>
+          <>
+            <Badge tone={attempt.percent >= 75 ? "success" : attempt.percent >= 50 ? "warning" : "danger"} className="px-3 py-1 text-base">
+              {attempt.score} / {attempt.maxScore} · {attempt.percent} %
+            </Badge>
+            <form action={deleteAttempt}>
+              <input type="hidden" name="attemptId" value={attempt.id} />
+              <ConfirmButton variant="danger" size="sm" message={`Smazat ${attempt.attemptNumber}. pokus studenta ${student.firstName} ${student.lastName}? Nelze vrátit.`}>
+                Smazat pokus
+              </ConfirmButton>
+            </form>
+          </>
         }
       />
 
