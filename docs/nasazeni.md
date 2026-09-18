@@ -11,7 +11,7 @@
 ## První nasazení (jednorázově)
 
 1. **Vercel → Add New Project → Import** repozitář `fsenkerik/Kvizy`.
-   - Root Directory: `kvizovna` (aplikace je v podsložce)
+   - Root Directory: nechat **prázdné** (aplikace je v kořeni repozitáře)
    - Framework: Next.js (rozpozná se sám)
 2. **Storage → Create Database → Neon** (free plán). Vercel sám přidá proměnnou `DATABASE_URL`.
 3. **Settings → Environment Variables** – přidej:
@@ -67,5 +67,5 @@ Bez `DATABASE_URL` aplikace používá PGlite (Postgres ve WASM) – data jsou v
 - **Deployments** (seznam buildů, tlačítko Redeploy): přehled projektu → záložka *Deployments*, tj. `https://vercel.com/<účet>/kvizy/deployments`. Ze *Settings* se tam dostaneš šipkou ← vedle nadpisu Settings.
 - **Logy buildu**: klikni na řádek nasazení → *Build Logs*.
 - **Proměnné prostředí**: Settings → *Environments*. Proměnné s předponou `NEXT_PUBLIC_` ukládej jako typ *Config* (ne *Secret*) – jsou z principu veřejné.
-- **Root Directory** (musí být `kvizovna`): Settings → *Build and Deployment*.
+- **Root Directory** (musí zůstat prázdné – aplikace je v kořeni repa): Settings → *Build and Deployment*.
 - Každý `git push` do `main` spustí nový build automaticky.
