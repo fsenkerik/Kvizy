@@ -61,3 +61,11 @@ Bez `DATABASE_URL` aplikace používá PGlite (Postgres ve WASM) – data jsou v
 | `npm run typecheck` | kontrola typů |
 | `npm run convert-quiz -- soubor.html` | převod starého HTML kvízu do JSON (`content/quizzes/`) |
 | `npm run db:studio` | prohlížeč databáze (Drizzle Studio) |
+
+## Kde co ve Vercelu najít
+
+- **Deployments** (seznam buildů, tlačítko Redeploy): přehled projektu → záložka *Deployments*, tj. `https://vercel.com/<účet>/kvizy/deployments`. Ze *Settings* se tam dostaneš šipkou ← vedle nadpisu Settings.
+- **Logy buildu**: klikni na řádek nasazení → *Build Logs*.
+- **Proměnné prostředí**: Settings → *Environments*. Proměnné s předponou `NEXT_PUBLIC_` ukládej jako typ *Config* (ne *Secret*) – jsou z principu veřejné.
+- **Root Directory** (musí být `kvizovna`): Settings → *Build and Deployment*.
+- Každý `git push` do `main` spustí nový build automaticky.
