@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
-const COLORS = ["var(--primary)", "var(--mint)", "var(--peach)", "var(--sky)", "var(--lavender)", "var(--success-fg)"];
+const COLORS = ["var(--primary)", "var(--mint)", "var(--peach)", "var(--sky)", "var(--lavender)", "var(--warning-fg)"];
 
 /** Deterministické částice pro daný seed (čistá funkce mimo render kvůli pravidlům hooků). */
 function makePieces(pieces: number, seed: number) {
@@ -11,31 +11,51 @@ function makePieces(pieces: number, seed: number) {
     state.x = (state.x * 9301 + 49297) % 233280;
     return state.x / 233280;
   };
-  return Array.from({ length: pieces }, (_, i) => {
-    const angle = rnd() * Math.PI * 2;
-    const dist = 80 + rnd() * 160;
-    return {
-      id: i,
-      dx: `${Math.cos(angle) * dist}px`,
-      dy: `${Math.sin(angle) * dist - 40}px`,
-      rot: `${Math.round(rnd() * 720 - 360)}deg`,
-      color: COLORS[i % COLORS.length],
-      delay: `${Math.round(rnd() * 120)}ms`,
-    };
-  });
+  return Array.from({ length: pieces }, (_, i) => ({
+    id: i,
+    left: `${Math.round(rnd() * 100)}%`,
+    drift: `${Math.round(rnd() * 120 - 60)}px`,
+    fall: `${Math.round(220 + rnd() * 220)}px`,
+    rot: `${Math.round(rnd() * 900 - 450)}deg`,
+    dur: `${(1.6 + rnd() * 1.2).toFixed(2)}s`,
+    delay: `${Math.round(rnd() * 500)}ms`,
+    color: COLORS[i % COLORS.length],
+    round: rnd() > 0.7,
+  }));
 }
 
-/** Jednorázový „výbuch“ konfet z CSS – bez knihoven. Vykresli uvnitř prvku s `relative`. */
-export function Confetti({ pieces = 28, seed = 1 }: { pieces?: number; seed?: number }) {
+/**
+ * Konfety padající přes celou šířku rodiče (ten musí mít `relative`).
+ * Po ~3 s se komponenta sama odstraní, takže nic nezůstane viset ani bez CSS animací.
+ */
+export function Confetti({ pieces = 60, seed = 1 }: { pieces?: number; seed?: number }) {
   const items = useMemo(() => makePieces(pieces, seed), [pieces, seed]);
+  const [alive, setAlive] = useState(true);
 
+  useEffect(() => {
+    const id = window.setTimeout(() => setAlive(false), 3200);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  if (!alive) return null;
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-visible" aria-hidden>
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-card" aria-hidden>
       {items.map((p) => (
         <span
           key={p.id}
           className="kv-confetti-piece"
-          style={{ "--dx": p.dx, "--dy": p.dy, "--rot": p.rot, background: p.color, animationDelay: p.delay } as React.CSSProperties}
+          style={
+            {
+              left: p.left,
+              background: p.color,
+              borderRadius: p.round ? "50%" : "2px",
+              "--drift": p.drift,
+              "--fall": p.fall,
+              "--rot": p.rot,
+              "--dur": p.dur,
+              "--delay": p.delay,
+            } as CSSProperties
+          }
         />
       ))}
     </div>

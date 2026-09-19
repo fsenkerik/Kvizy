@@ -124,34 +124,53 @@ body {
   }
 }
 
-/* ---------- Animace bodování ---------- */
+/* ---------- Animace bodování ----------
+   Záměrně bez prefers-reduced-motion: školní počítače mívají efekty vypnuté a bez animace
+   by prvky zůstaly viset. Všechny efekty jsou krátké a po skončení se z DOM odstraní. */
 @keyframes kv-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
 @keyframes kv-float-up {
-  0% { opacity: 0; transform: translateY(6px) scale(0.9); }
-  15% { opacity: 1; transform: translateY(0) scale(1.05); }
-  70% { opacity: 1; transform: translateY(-14px) scale(1); }
-  100% { opacity: 0; transform: translateY(-26px) scale(0.95); }
+  0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  20% { opacity: 1; transform: translateY(0) scale(1.1); }
+  70% { opacity: 1; transform: translateY(-6px) scale(1); }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.9); }
 }
-@keyframes kv-confetti {
-  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.6); }
+@keyframes kv-confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, -20px, 0) rotate(0deg); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift), var(--fall), 0) rotate(var(--rot)); }
+}
+@keyframes kv-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+@keyframes kv-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(124 108 240 / 0); }
+  50% { box-shadow: 0 0 0 6px rgb(124 108 240 / 0.25); }
 }
 .kv-pop { animation: kv-pop 0.6s ease-out; }
-.kv-float-up { animation: kv-float-up 1.8s ease-out forwards; }
+.kv-float-up { animation: kv-float-up 1.6s ease-out forwards; }
+.kv-glow { animation: kv-glow 1.2s ease-out 1; }
 .kv-confetti-piece {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 10px;
+  top: 0;
+  width: 9px;
   height: 14px;
   border-radius: 2px;
-  animation: kv-confetti 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  animation: kv-confetti-fall var(--dur) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay) forwards;
   pointer-events: none;
+  will-change: transform, opacity;
 }
-@media (prefers-reduced-motion: reduce) {
-  .kv-pop, .kv-float-up, .kv-confetti-piece { animation: none; }
+/* Lesk běžící po vyplněné části ukazatele bodů */
+.kv-bar-fill { position: relative; overflow: hidden; }
+.kv-bar-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: kv-shimmer 2.4s ease-in-out infinite;
 }

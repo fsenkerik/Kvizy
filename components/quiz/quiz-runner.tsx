@@ -6,6 +6,7 @@ import { submitAttempt, type SubmitResult } from "@/app/actions/attempts";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/dialog";
 import { isAnswered, verdictFor } from "@/lib/quiz/engine";
 import { QUESTION_TYPE_LABELS, type AnswerMap, type AnswerValue, type PublicQuestion } from "@/lib/quiz/types";
 import { QuestionInput } from "./question-input";
@@ -26,6 +27,7 @@ export function QuizRunner({
   const [result, setResult] = useState<Extract<SubmitResult, { ok: true }> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const { award } = usePoints();
 
   const answeredCount = useMemo(() => questions.filter((q) => isAnswered(q, answers[q.id])).length, [questions, answers]);
@@ -34,9 +36,25 @@ export function QuizRunner({
     setAnswers((prev) => ({ ...prev, [id]: value }));
   }
 
+  const unanswered = questions.map((q, i) => (isAnswered(q, answers[q.id]) ? null : i + 1)).filter((n): n is number => n !== null);
+
   function submit() {
-    const missing = questions.length - answeredCount;
-    if (missing > 0 && !window.confirm(`Nemáš zodpovězeno ${missing} otázek. Opravdu chceš kvíz odevzdat?`)) return;
+    if (unanswered.length > 0) {
+      setConfirmOpen(true);
+      return;
+    }
+    doSubmit();
+  }
+
+  function scrollToFirstUnanswered() {
+    setConfirmOpen(false);
+    const first = unanswered[0];
+    if (!first) return;
+    document.getElementById(`otazka-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function doSubmit() {
+    setConfirmOpen(false);
     setError(null);
     startTransition(async () => {
       const res = await submitAttempt(quizId, answers);
@@ -55,7 +73,7 @@ export function QuizRunner({
     return (
       <div className="space-y-6">
         <div className="relative rounded-card bg-primary-soft p-8 text-center">
-          {result.points.earned > 0 && <Confetti pieces={result.percent === 100 ? 48 : 28} seed={result.score + 1} />}
+          {result.points.earned > 0 && <Confetti pieces={result.percent === 100 ? 90 : 55} seed={result.score + 1} />}
           <p className="text-sm font-medium uppercase tracking-wide text-muted">Tvůj výsledek</p>
           <p className="mt-2 text-5xl font-semibold tracking-tight">
             {result.score} / {result.maxScore}
@@ -113,7 +131,7 @@ export function QuizRunner({
 
       <ol className="space-y-4">
         {questions.map((q, index) => (
-          <li key={q.id} className="rounded-card border border-border bg-surface p-5">
+          <li key={q.id} id={`otazka-${index + 1}`} className="scroll-mt-24 rounded-card border border-border bg-surface p-5">
             <div className="mb-4 flex items-start gap-3">
               <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-fg">
                 {index + 1}
@@ -132,6 +150,18 @@ export function QuizRunner({
       </ol>
 
       {error && <Alert>{error}</Alert>}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={unanswered.length === 1 ? "Jedna otázka je bez odpovědi" : `${unanswered.length} otázek je bez odpovědi`}
+        confirmLabel="Odevzdat i tak"
+        cancelLabel="Doplnit odpovědi"
+        onConfirm={doSubmit}
+        onCancel={scrollToFirstUnanswered}
+      >
+        Nezodpovězené: {unanswered.slice(0, 12).join(", ")}
+        {unanswered.length > 12 ? " a další" : ""}. Za nezodpovězené otázky nedostaneš body.
+      </ConfirmDialog>
 
       <div className="flex justify-center pb-8">
         <Button size="lg" onClick={submit} disabled={pending}>

@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { studentLogout } from "@/app/actions/auth";
 import { getPointsSummary } from "@/lib/points";
 import { PointsProvider } from "./points-context";
-import { PointsBadge } from "./points-badge";
+import { PointsWidget } from "./points-badge";
 
 /**
- * Obal přihlášených studentských stránek: hlavička s body, jménem a odhlášením.
+ * Obal přihlášených studentských stránek: body uprostřed hlavičky, jméno a odhlášení vpravo.
  * Body drží PointsProvider, aby se po odevzdání kvízu / splnění odkazu hned aktualizovaly.
  */
 export async function StudentShell({
@@ -29,17 +29,17 @@ export async function StudentShell({
     <PointsProvider initial={points}>
       <Shell
         homeHref={`/trida/${classId}`}
+        center={<PointsWidget />}
         right={
           <div className="flex items-center gap-3">
             {backHref && (
-              <Link href={backHref} className="hidden text-sm text-muted hover:text-text sm:inline">
+              <Link href={backHref} className="hidden text-sm text-muted hover:text-text md:inline">
                 ← Témata
               </Link>
             )}
-            <PointsBadge />
             <form action={studentLogout} className="flex items-center gap-2">
               <input type="hidden" name="classId" value={classId} />
-              <span className="hidden text-sm text-muted md:inline">{student.firstName}</span>
+              <span className="hidden text-sm text-muted sm:inline">{student.firstName}</span>
               <Button variant="secondary" size="sm" type="submit">
                 Odhlásit
               </Button>
