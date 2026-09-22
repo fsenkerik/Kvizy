@@ -139,3 +139,26 @@ export async function deleteQuizAttempts(formData: FormData) {
   await syncQuizPointsForAll(quiz);
   revalidateQuizResults(quiz.id, quiz.topicId);
 }
+
+/**
+ * Náhled kvízu pro učitele: vyhodnotí odpovědi, ale nic neuloží (žádný pokus, žádné body).
+ * Vrací stejný tvar jako submitAttempt, aby šla použít stejná komponenta.
+ */
+export async function previewGrade(quizId: string, rawAnswers: unknown): Promise<SubmitResult> {
+  const teacher = await requireTeacher();
+  const quiz = await getOwnedQuiz(teacher.id, quizId);
+  if (!quiz) return { ok: false, error: "Kvíz nenalezen." };
+
+  const answers = sanitizeAnswers(rawAnswers);
+  const result = grade(quiz.questions, quiz.id, answers);
+  return {
+    ok: true,
+    attemptId: "nahled",
+    score: result.score,
+    maxScore: result.maxScore,
+    percent: result.percent,
+    attemptsLeft: null,
+    review: buildReview(quiz.questions, quiz.id, answers, result.results),
+    points: { total: 0, max: 0, earned: quizPoints(result.percent, quiz.points), quizMax: quiz.points },
+  };
+}

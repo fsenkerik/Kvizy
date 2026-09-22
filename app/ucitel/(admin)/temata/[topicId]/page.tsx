@@ -97,7 +97,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
             <Dialog title="Nahrát hotový HTML kvíz" trigger={<Button size="sm" variant="secondary">Nahrát HTML</Button>}>
               <p className="mb-3 text-sm text-muted">
                 Vyber soubor <code>.html</code> s kvízem ve tvém původním formátu (např. <code>hardware_kviz.html</code>). Aplikace z něj
-                otázky, správné odpovědi i vysvětlení přečte sama. Po nahrání zkontroluj otázky v detailu kvízu.
+                otázky, správné odpovědi i vysvětlení přečte sama. Po nahrání si kvíz projdi tlačítkem <strong>👁 Náhled</strong> – nic se neukládá.
               </p>
               <ActionForm action={createQuizFromHtml} submitLabel="Nahrát a převést" resetOnSuccess closeDialogOnSuccess>
                 <input type="hidden" name="topicId" value={topic.id} />
@@ -153,6 +153,9 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                           {q.isOpen ? "Uzavřít" : "Otevřít"}
                         </Button>
                       </form>
+                      <Link href={`/ucitel/kvizy/${q.id}/nahled`} className={buttonClass("secondary", "sm")} title="Projít kvíz jako student (neukládá se)">
+                        👁 Náhled
+                      </Link>
                       <Link href={`/ucitel/kvizy/${q.id}/vysledky`} className={buttonClass("secondary", "sm")}>
                         Výsledky
                       </Link>

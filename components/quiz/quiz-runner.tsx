@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
-import { submitAttempt, type SubmitResult } from "@/app/actions/attempts";
+import { previewGrade, submitAttempt, type SubmitResult } from "@/app/actions/attempts";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
@@ -11,24 +11,29 @@ import { isAnswered, verdictFor } from "@/lib/quiz/engine";
 import { QUESTION_TYPE_LABELS, type AnswerMap, type AnswerValue, type PublicQuestion } from "@/lib/quiz/types";
 import { QuestionInput } from "./question-input";
 import { AttemptReview } from "./review";
-import { usePoints } from "@/components/student/points-context";
+import { usePointsOptional } from "@/components/student/points-context";
 import { Confetti } from "@/components/student/confetti";
 
 export function QuizRunner({
   quizId,
-  classId,
   questions,
+  backHref,
+  backLabel = "Zpět na témata",
+  preview = false,
 }: {
   quizId: string;
-  classId: string;
   questions: PublicQuestion[];
+  backHref: string;
+  backLabel?: string;
+  /** Náhled pro učitele: hodnotí se bez uložení pokusu a bez bodů. */
+  preview?: boolean;
 }) {
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [result, setResult] = useState<Extract<SubmitResult, { ok: true }> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const { award } = usePoints();
+  const points = usePointsOptional();
 
   const answeredCount = useMemo(() => questions.filter((q) => isAnswered(q, answers[q.id])).length, [questions, answers]);
 
@@ -57,7 +62,7 @@ export function QuizRunner({
     setConfirmOpen(false);
     setError(null);
     startTransition(async () => {
-      const res = await submitAttempt(quizId, answers);
+      const res = preview ? await previewGrade(quizId, answers) : await submitAttempt(quizId, answers);
       if (!res.ok) {
         setError(res.error);
         return;
@@ -65,7 +70,10 @@ export function QuizRunner({
       setResult(res);
       window.scrollTo({ top: 0, behavior: "smooth" });
       // Body v hlavičce se přičtou s malým zpožděním, aby animace navazovala na zobrazení výsledku.
-      window.setTimeout(() => award({ total: res.points.total, max: res.points.max, earned: res.points.earned }), 400);
+      if (!preview && points) {
+        const award = points.award;
+        window.setTimeout(() => award({ total: res.points.total, max: res.points.max, earned: res.points.earned }), 400);
+      }
     });
   }
 
@@ -74,6 +82,7 @@ export function QuizRunner({
       <div className="space-y-6">
         <div className="relative rounded-card bg-primary-soft p-8 text-center">
           {result.points.earned > 0 && <Confetti pieces={result.percent === 100 ? 90 : 55} seed={result.score + 1} />}
+          {preview && <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Náhled · výsledek se neukládá</p>}
           <p className="text-sm font-medium uppercase tracking-wide text-muted">Tvůj výsledek</p>
           <p className="mt-2 text-5xl font-semibold tracking-tight">
             {result.score} / {result.maxScore}
@@ -87,10 +96,10 @@ export function QuizRunner({
           )}
           <p className="mt-4 text-base">{verdictFor(result.percent)}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Link href={`/trida/${classId}`} className={buttonClass("primary")}>
-              Zpět na témata
+            <Link href={backHref} className={buttonClass("primary")}>
+              {backLabel}
             </Link>
-            {(result.attemptsLeft === null || result.attemptsLeft > 0) && (
+            {(preview || result.attemptsLeft === null || result.attemptsLeft > 0) && (
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -99,7 +108,7 @@ export function QuizRunner({
                   window.scrollTo({ top: 0 });
                 }}
               >
-                Zkusit znovu
+                {preview ? "Projít znovu" : "Zkusit znovu"}
               </Button>
             )}
           </div>
@@ -121,7 +130,7 @@ export function QuizRunner({
             Zodpovězeno {answeredCount} / {questions.length}
           </span>
           <Button size="sm" onClick={submit} disabled={pending}>
-            {pending ? "Odesílám…" : "Vyhodnotit kvíz"}
+            {pending ? "Vyhodnocuji…" : "Vyhodnotit kvíz"}
           </Button>
         </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
@@ -165,7 +174,7 @@ export function QuizRunner({
 
       <div className="flex justify-center pb-8">
         <Button size="lg" onClick={submit} disabled={pending}>
-          {pending ? "Odesílám…" : "Vyhodnotit kvíz"}
+          {pending ? "Vyhodnocuji…" : "Vyhodnotit kvíz"}
         </Button>
       </div>
     </div>

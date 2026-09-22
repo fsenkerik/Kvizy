@@ -42,7 +42,7 @@ export default async function QuizPage(props: PageProps<"/trida/[classId]/kviz/[
           </>
         }
       />
-      <QuizRunner quizId={quiz.id} classId={classId} questions={questions} />
+      <QuizRunner quizId={quiz.id} questions={questions} backHref={`/trida/${classId}`} />
     </StudentShell>
   );
 }

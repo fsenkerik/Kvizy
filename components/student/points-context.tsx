@@ -27,3 +27,8 @@ export function usePoints() {
   if (!ctx) throw new Error("usePoints musí být uvnitř PointsProvider");
   return ctx;
 }
+
+/** Varianta pro komponenty, které běží i mimo studentský kontext (náhled kvízu pro učitele). */
+export function usePointsOptional() {
+  return useContext(PointsContext);
+}

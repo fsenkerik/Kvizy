@@ -77,3 +77,7 @@ Společná volitelná pole u každé otázky:
 - U odkazu na cvičení nastavíš **Body za splnění** (výchozí 5). Student je dostane, když odkaz otevře a nechá stránku Kvízovny otevřenou alespoň 45 s – čas hlídá server.
 - Body se vedou v samostatné „bodové knize“, takže zůstanou i po skrytí tématu nebo smazání kvízu. Smazání pokusů studenta (Výsledky → Smazat) body z daného kvízu přepočítá.
 - Student vidí body v hlavičce (⭐) s ukazatelem vůči momentálně dosažitelnému maximu; učitel v matici *Výsledky třídy* ve sloupci ⭐ Body.
+
+## Náhled kvízu
+
+Po nahrání (nebo kdykoli později) si kvíz projdi tlačítkem **👁 Náhled** – v seznamu kvízů u tématu i v detailu kvízu. Uvidíš ho přesně jako student včetně vyhodnocení, správných odpovědí a vysvětlení, ale **nic se neukládá**: nevznikne pokus, nepřipíšou se body a ve výsledcích se náhled neobjeví.

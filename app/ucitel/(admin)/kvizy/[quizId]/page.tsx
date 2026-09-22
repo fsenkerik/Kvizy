@@ -38,9 +38,14 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
         title={quiz.title}
         subtitle={plural(quiz.questions.length, ["otázka", "otázky", "otázek"])}
         actions={
-          <Link href={`/ucitel/kvizy/${quiz.id}/vysledky`} className={buttonClass("secondary")}>
-            Výsledky
-          </Link>
+          <>
+            <Link href={`/ucitel/kvizy/${quiz.id}/nahled`} className={buttonClass("primary")}>
+              👁 Náhled kvízu
+            </Link>
+            <Link href={`/ucitel/kvizy/${quiz.id}/vysledky`} className={buttonClass("secondary")}>
+              Výsledky
+            </Link>
+          </>
         }
       />
 
