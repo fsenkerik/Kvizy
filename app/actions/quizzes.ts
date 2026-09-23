@@ -82,6 +82,8 @@ export async function updateQuizSettings(_prev: ActionState, formData: FormData)
       showAnswersAfter: formData.get("showAnswersAfter") === "on",
       isOpen: formData.get("isOpen") === "on",
       points,
+      shuffleQuestions: formData.get("shuffleQuestions") === "on",
+      shuffleOptions: formData.get("shuffleOptions") === "on",
     })
     .where(eq(schema.quizzes.id, quiz.id));
   if (points !== quiz.points) await syncQuizPointsForAll({ id: quiz.id, title: quiz.title, points });

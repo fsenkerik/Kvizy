@@ -21,8 +21,14 @@ export default async function QuizPage(props: PageProps<"/trida/[classId]/kviz/[
     redirect(`/trida/${classId}/kviz/${quizId}/vysledek`);
   }
 
-  // Studentovi posíláme jen veřejnou verzi otázek – bez správných odpovědí a vysvětlení.
-  const questions = toPublicQuestions(quiz.questions, quiz.id);
+  // Studentovi posíláme jen veřejnou verzi otázek – bez správných odpovědí a vysvětlení,
+  // v pořadí zamíchaném podle jeho id (pokud to má kvíz zapnuté).
+  const questions = toPublicQuestions(quiz.questions, {
+    quizId: quiz.id,
+    seed: student.id,
+    shuffleQuestions: quiz.shuffleQuestions,
+    shuffleOptions: quiz.shuffleOptions,
+  });
 
   return (
     <StudentShell student={student} classId={classId} groupId={student.class.groupId} backHref={`/trida/${classId}`}>

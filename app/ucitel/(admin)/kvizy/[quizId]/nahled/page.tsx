@@ -19,7 +19,12 @@ export default async function QuizPreviewPage(props: PageProps<"/ucitel/kvizy/[q
   const quiz = await getOwnedQuiz(teacher.id, quizId);
   if (!quiz) notFound();
 
-  const questions = toPublicQuestions(quiz.questions, quiz.id);
+  const questions = toPublicQuestions(quiz.questions, {
+    quizId: quiz.id,
+    seed: `nahled:${teacher.id}`,
+    shuffleQuestions: quiz.shuffleQuestions,
+    shuffleOptions: quiz.shuffleOptions,
+  });
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -51,6 +56,7 @@ export default async function QuizPreviewPage(props: PageProps<"/ucitel/kvizy/[q
 
       <Alert tone="info" className="mb-5">
         <strong>Náhled pro učitele.</strong> Kvíz vidíš přesně jako student. Odpovědi ani výsledek se neukládají a studentům se nikde nezobrazí.
+        {(quiz.shuffleQuestions || quiz.shuffleOptions) && " Pořadí je zamíchané – každý student uvidí jiné."}
       </Alert>
 
       <QuizRunner quizId={quiz.id} questions={questions} backHref={`/ucitel/kvizy/${quiz.id}`} backLabel="Zpět na kvíz" preview />

@@ -81,3 +81,12 @@ Společná volitelná pole u každé otázky:
 ## Náhled kvízu
 
 Po nahrání (nebo kdykoli později) si kvíz projdi tlačítkem **👁 Náhled** – v seznamu kvízů u tématu i v detailu kvízu. Uvidíš ho přesně jako student včetně vyhodnocení, správných odpovědí a vysvětlení, ale **nic se neukládá**: nevznikne pokus, nepřipíšou se body a ve výsledcích se náhled neobjeví.
+
+## Míchání otázek a odpovědí
+
+U každého kvízu jsou v *Nastavení* dva přepínače, **oba zapnuté** (lze je vypnout):
+
+- **Zamíchat pořadí otázek** – každý student dostane otázky v jiném pořadí.
+- **Zamíchat pořadí odpovědí** – zamíchají se možnosti u výběrových otázek i pravé strany u párování. (Pravda/Nepravda a doplňovačky nemají co míchat.)
+
+Pořadí je pro daného studenta stálé – po obnovení stránky se nezamíchá znovu. Hodnocení i uložené výsledky pracují vždy s původním pořadím z JSON, takže revize u učitele i v přehledu výsledků vypadá stejně jako kvíz v editoru. Hned po odevzdání vidí student revizi v pořadí, ve kterém kvíz vyplňoval.

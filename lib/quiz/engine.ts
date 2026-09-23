@@ -24,7 +24,23 @@ export function normalizeText(value: string | null | undefined) {
     .trim();
 }
 
-/* ---------- Deterministické míchání (párování) ---------- */
+/* ---------- Míchání ----------
+   Odpovědi studenta i uložené pokusy jsou vždy v „kanonickém“ pořadí podle JSON kvízu.
+   Zamíchané pořadí se dopočítá deterministicky ze seedu (kvíz + otázka + student),
+   takže každý student vidí jiné pořadí, ale po obnovení stránky stejné. */
+
+export type ShuffleCtx = {
+  quizId: string;
+  /** Rozlišuje studenty – každý dostane jiné pořadí. */
+  seed: string;
+  shuffleQuestions: boolean;
+  shuffleOptions: boolean;
+};
+
+/** Kontext bez míchání – pro revizi pokusu (učitel i student vidí původní pořadí z JSON). */
+export function noShuffle(quizId: string): ShuffleCtx {
+  return { quizId, seed: "", shuffleQuestions: false, shuffleOptions: false };
+}
 
 function hashSeed(seed: string) {
   let h = 2166136261;
@@ -45,66 +61,127 @@ function mulberry32(a: number) {
   };
 }
 
+function identity(n: number) {
+  return Array.from({ length: n }, (_, i) => i);
+}
+
 /** Vrátí permutaci indexů 0..n-1 stejnou pro stejný seed. */
 export function seededPermutation(n: number, seed: string) {
   const rnd = mulberry32(hashSeed(seed));
-  const idx = Array.from({ length: n }, (_, i) => i);
+  const idx = identity(n);
   for (let i = n - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [idx[i], idx[j]] = [idx[j], idx[i]];
   }
-  // Pro >1 prvků zajistíme, že permutace není identita (ta by prozradila odpověď).
-  if (n > 1 && idx.every((v, i) => v === i)) {
-    idx.push(idx.shift()!);
-  }
+  // Pro >1 prvků zajistíme, že permutace není identita (ta by nic nezamíchala).
+  if (n > 1 && idx.every((v, i) => v === i)) idx.push(idx.shift()!);
   return idx;
 }
 
-/** Pravé možnosti v kanonickém pořadí: nejdřív pravé strany dvojic, pak distraktory. */
+/** Obrácená permutace: z „kam se prvek přesunul“ na „co je na dané pozici“. */
+function invert(perm: number[]) {
+  return perm.reduce<number[]>((acc, canonical, shown) => ((acc[canonical] = shown), acc), []);
+}
+
+/** Pořadí otázek: pole kanonických indexů v pořadí, v jakém se zobrazí. */
+export function questionOrder(count: number, ctx: ShuffleCtx) {
+  return ctx.shuffleQuestions && count > 1 ? seededPermutation(count, `${ctx.quizId}:${ctx.seed}:q`) : identity(count);
+}
+
+/** Pořadí možností u single/multi otázky. */
+function optionPerm(q: Question & { options: string[] }, ctx: ShuffleCtx) {
+  const shown = ctx.shuffleOptions && q.options.length > 1 ? seededPermutation(q.options.length, `${ctx.quizId}:${q.id}:${ctx.seed}:o`) : identity(q.options.length);
+  return { toCanonical: shown, toShown: invert(shown) };
+}
+
+/** Pravé možnosti u párování: nejdřív pravé strany dvojic, pak distraktory. */
 function canonicalRights(q: MatchingQuestion) {
   return [...q.pairs.map((p) => p.right), ...(q.distractors ?? [])];
 }
 
 /**
- * Zamíchané pravé možnosti a mapa: index v zamíchaném poli → kanonický index.
- * Seed = id kvízu + id otázky, takže server i klient vidí stejné pořadí.
+ * Zamíchané pravé možnosti u párování a mapa mezi zobrazeným a kanonickým pořadím.
+ * Bez míchání (revize) se pravé možnosti zobrazí v kanonickém pořadí.
  */
-export function matchingLayout(q: MatchingQuestion, quizId: string) {
+export function matchingLayout(q: MatchingQuestion, ctx: ShuffleCtx) {
   const rights = canonicalRights(q);
-  const perm = seededPermutation(rights.length, `${quizId}:${q.id}`);
-  return {
-    rights: perm.map((ci) => rights[ci]),
-    /** shuffledIndex -> canonicalIndex */
-    toCanonical: perm,
-    /** canonicalIndex -> shuffledIndex */
-    toShuffled: perm.reduce<number[]>((acc, ci, si) => ((acc[ci] = si), acc), []),
-  };
+  const toCanonical = ctx.shuffleOptions && rights.length > 1 ? seededPermutation(rights.length, `${ctx.quizId}:${q.id}:${ctx.seed}:m`) : identity(rights.length);
+  return { rights: toCanonical.map((ci) => rights[ci]), toCanonical, toShown: invert(toCanonical) };
 }
 
 /* ---------- Verze pro studenta ---------- */
 
-export function toPublicQuestion(q: Question, quizId: string): PublicQuestion {
+export function toPublicQuestion(q: Question, ctx: ShuffleCtx): PublicQuestion {
   const points = q.points ?? 1;
   switch (q.type) {
     case "single":
-    case "multi":
-      return { id: q.id, type: q.type, text: q.text, points, options: q.options };
+    case "multi": {
+      const { toCanonical } = optionPerm(q, ctx);
+      return { id: q.id, type: q.type, text: q.text, points, options: toCanonical.map((ci) => q.options[ci]) };
+    }
     case "boolean":
       return { id: q.id, type: "boolean", text: q.text, points };
     case "text":
       return { id: q.id, type: "text", text: q.text, points, placeholder: q.placeholder };
     case "matching": {
-      const layout = matchingLayout(q, quizId);
+      const layout = matchingLayout(q, ctx);
       return { id: q.id, type: "matching", text: q.text, points, lefts: q.pairs.map((p) => p.left), rights: layout.rights };
     }
   }
 }
 
-export function toPublicQuestions(questions: Question[], quizId: string) {
-  return questions.map((q) => toPublicQuestion(q, quizId));
+/** Otázky pro studenta v zobrazeném pořadí, bez správných odpovědí. */
+export function toPublicQuestions(questions: Question[], ctx: ShuffleCtx) {
+  return questionOrder(questions.length, ctx).map((ci) => toPublicQuestion(questions[ci], ctx));
 }
 
-/* ---------- Hodnocení ---------- */
+/* ---------- Převod odpovědí mezi zobrazeným a kanonickým pořadím ---------- */
+
+function mapAnswer(q: Question, answer: AnswerValue | undefined, map: (i: number) => number): AnswerValue | undefined {
+  if (answer === undefined || answer === null) return answer;
+  switch (q.type) {
+    case "single":
+      return typeof answer === "number" ? map(answer) : answer;
+    case "multi":
+      return Array.isArray(answer)
+        ? (answer as (number | null)[]).filter((x): x is number => typeof x === "number").map(map).sort((a, b) => a - b)
+        : answer;
+    case "matching":
+      return Array.isArray(answer) ? (answer as (number | null)[]).map((x) => (typeof x === "number" ? map(x) : x)) : answer;
+    default:
+      return answer;
+  }
+}
+
+function perms(q: Question, ctx: ShuffleCtx) {
+  if (q.type === "single" || q.type === "multi") return optionPerm(q, ctx);
+  if (q.type === "matching") return matchingLayout(q, ctx);
+  return null;
+}
+
+/** Odpovědi ze zobrazeného pořadí převede do kanonického (pro hodnocení a uložení). */
+export function toCanonicalAnswers(questions: Question[], ctx: ShuffleCtx, answers: AnswerMap): AnswerMap {
+  const out: AnswerMap = {};
+  for (const q of questions) {
+    const p = perms(q, ctx);
+    const value = mapAnswer(q, answers[q.id], (i) => p?.toCanonical[i] ?? i);
+    if (value !== undefined) out[q.id] = value;
+  }
+  return out;
+}
+
+/** Opačný směr – pro revizi hned po odevzdání, aby student viděl své pořadí. */
+export function toShownAnswers(questions: Question[], ctx: ShuffleCtx, answers: AnswerMap): AnswerMap {
+  const out: AnswerMap = {};
+  for (const q of questions) {
+    const p = perms(q, ctx);
+    const value = mapAnswer(q, answers[q.id], (i) => p?.toShown[i] ?? i);
+    if (value !== undefined) out[q.id] = value;
+  }
+  return out;
+}
+
+/* ---------- Hodnocení (vždy nad kanonickými odpověďmi) ---------- */
 
 function sameSet(a: number[], b: number[]) {
   if (a.length !== b.length) return false;
@@ -112,7 +189,7 @@ function sameSet(a: number[], b: number[]) {
   return a.every((x) => sb.has(x));
 }
 
-export function isQuestionCorrect(q: Question, quizId: string, answer: AnswerValue | undefined): boolean {
+export function isQuestionCorrect(q: Question, answer: AnswerValue | undefined): boolean {
   switch (q.type) {
     case "single":
       return typeof answer === "number" && answer === q.correct[0];
@@ -125,21 +202,16 @@ export function isQuestionCorrect(q: Question, quizId: string, answer: AnswerVal
       const norm = normalizeText(answer);
       return norm.length > 0 && q.accept.some((a) => normalizeText(a) === norm);
     }
-    case "matching": {
-      if (!Array.isArray(answer) || answer.length !== q.pairs.length) return false;
-      const layout = matchingLayout(q, quizId);
-      return q.pairs.every((_, pairIndex) => {
-        const chosen = answer[pairIndex];
-        return typeof chosen === "number" && layout.toCanonical[chosen] === pairIndex;
-      });
-    }
+    case "matching":
+      // V kanonickém pořadí patří k i-té dvojici i-tá pravá možnost.
+      return Array.isArray(answer) && answer.length === q.pairs.length && q.pairs.every((_, i) => answer[i] === i);
   }
 }
 
-export function grade(questions: Question[], quizId: string, answers: AnswerMap): GradeResult {
+export function grade(questions: Question[], answers: AnswerMap): GradeResult {
   const results: QuestionResult[] = questions.map((q) => {
     const points = q.points ?? 1;
-    const correct = isQuestionCorrect(q, quizId, answers[q.id]);
+    const correct = isQuestionCorrect(q, answers[q.id]);
     return { id: q.id, correct, points, earned: correct ? points : 0 };
   });
   const score = results.reduce((s, r) => s + r.earned, 0);
@@ -150,34 +222,43 @@ export function grade(questions: Question[], quizId: string, answers: AnswerMap)
 
 /* ---------- Revize ---------- */
 
-/** Správná odpověď ve tvaru, který odpovídá PublicQuestion (u párování zamíchané indexy). */
-export function correctAnswerFor(q: Question, quizId: string): AnswerValue {
+/** Správná odpověď ve tvaru, který odpovídá zobrazené verzi otázky. */
+export function correctAnswerFor(q: Question, ctx: ShuffleCtx): AnswerValue {
   switch (q.type) {
     case "single":
-      return q.correct[0];
-    case "multi":
-      return q.correct;
+      return optionPerm(q, ctx).toShown[q.correct[0]];
+    case "multi": {
+      const { toShown } = optionPerm(q, ctx);
+      return q.correct.map((ci) => toShown[ci]).sort((a, b) => a - b);
+    }
     case "boolean":
       return q.correct;
     case "text":
       return q.accept[0];
     case "matching": {
-      const layout = matchingLayout(q, quizId);
-      return q.pairs.map((_, i) => layout.toShuffled[i]);
+      const layout = matchingLayout(q, ctx);
+      return q.pairs.map((_, i) => layout.toShown[i]);
     }
   }
 }
 
-export function buildReview(questions: Question[], quizId: string, answers: AnswerMap, results: QuestionResult[]): ReviewQuestion[] {
+/**
+ * Revize pokusu. `answers` jsou kanonické (tak se ukládají); pokud chceš zobrazit
+ * pořadí, které student viděl, předej jeho ctx – funkce si odpovědi převede sama.
+ */
+export function buildReview(questions: Question[], answers: AnswerMap, results: QuestionResult[], ctx?: ShuffleCtx): ReviewQuestion[] {
+  const context = ctx ?? noShuffle("");
+  const shown = ctx ? toShownAnswers(questions, ctx, answers) : answers;
   const byId = new Map(results.map((r) => [r.id, r]));
-  return questions.map((q) => {
+  return questionOrder(questions.length, context).map((ci) => {
+    const q = questions[ci];
     const r = byId.get(q.id);
     return {
-      question: toPublicQuestion(q, quizId),
-      answer: answers[q.id],
+      question: toPublicQuestion(q, context),
+      answer: shown[q.id],
       correct: r?.correct ?? false,
       earned: r?.earned ?? 0,
-      correctAnswer: correctAnswerFor(q, quizId),
+      correctAnswer: correctAnswerFor(q, context),
       acceptedText: q.type === "text" ? q.accept : undefined,
       explain: q.explain,
     };

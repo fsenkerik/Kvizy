@@ -7,7 +7,7 @@ import { getDb, schema } from "@/lib/db";
 import { getOwnedAttempt, getOwnedQuiz, getOwnedStudent } from "@/lib/db/access";
 import { currentStudent, requireTeacher } from "@/lib/auth/guards";
 import { str } from "./types";
-import { buildReview, grade } from "@/lib/quiz/engine";
+import { buildReview, grade, toCanonicalAnswers, type ShuffleCtx } from "@/lib/quiz/engine";
 import { getPointsSummary, quizPoints, syncQuizPoints, syncQuizPointsForAll, type PointsSummary } from "@/lib/points";
 import type { AnswerMap, ReviewQuestion } from "@/lib/quiz/types";
 
@@ -60,8 +60,15 @@ export async function submitAttempt(quizId: string, rawAnswers: unknown): Promis
     return { ok: false, error: "Vyčerpal/a jsi všechny pokusy." };
   }
 
-  const answers = sanitizeAnswers(rawAnswers);
-  const result = grade(quiz.questions, quiz.id, answers);
+  // Odpovědi přijdou v pořadí, které student viděl; do DB je ukládáme v kanonickém pořadí.
+  const ctx: ShuffleCtx = {
+    quizId: quiz.id,
+    seed: student.id,
+    shuffleQuestions: quiz.shuffleQuestions,
+    shuffleOptions: quiz.shuffleOptions,
+  };
+  const answers = toCanonicalAnswers(quiz.questions, ctx, sanitizeAnswers(rawAnswers));
+  const result = grade(quiz.questions, answers);
 
   const [attempt] = await db
     .insert(schema.attempts)
@@ -89,7 +96,7 @@ export async function submitAttempt(quizId: string, rawAnswers: unknown): Promis
     maxScore: result.maxScore,
     percent: result.percent,
     attemptsLeft: quiz.maxAttempts === null ? null : quiz.maxAttempts - used - 1,
-    review: quiz.showAnswersAfter ? buildReview(quiz.questions, quiz.id, answers, result.results) : null,
+    review: quiz.showAnswersAfter ? buildReview(quiz.questions, answers, result.results, ctx) : null,
     points: { ...summary, earned, quizMax: quiz.points },
   };
 }
@@ -149,8 +156,14 @@ export async function previewGrade(quizId: string, rawAnswers: unknown): Promise
   const quiz = await getOwnedQuiz(teacher.id, quizId);
   if (!quiz) return { ok: false, error: "Kvíz nenalezen." };
 
-  const answers = sanitizeAnswers(rawAnswers);
-  const result = grade(quiz.questions, quiz.id, answers);
+  const ctx: ShuffleCtx = {
+    quizId: quiz.id,
+    seed: `nahled:${teacher.id}`,
+    shuffleQuestions: quiz.shuffleQuestions,
+    shuffleOptions: quiz.shuffleOptions,
+  };
+  const answers = toCanonicalAnswers(quiz.questions, ctx, sanitizeAnswers(rawAnswers));
+  const result = grade(quiz.questions, answers);
   return {
     ok: true,
     attemptId: "nahled",
@@ -158,7 +171,7 @@ export async function previewGrade(quizId: string, rawAnswers: unknown): Promise
     maxScore: result.maxScore,
     percent: result.percent,
     attemptsLeft: null,
-    review: buildReview(quiz.questions, quiz.id, answers, result.results),
+    review: buildReview(quiz.questions, answers, result.results, ctx),
     points: { total: 0, max: 0, earned: quizPoints(result.percent, quiz.points), quizMax: quiz.points },
   };
 }

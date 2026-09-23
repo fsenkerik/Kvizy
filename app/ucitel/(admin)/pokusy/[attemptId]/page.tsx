@@ -78,7 +78,7 @@ export default async function AttemptPage(props: PageProps<"/ucitel/pokusy/[atte
       )}
 
       <div className="mx-auto max-w-3xl">
-        <AttemptReview review={buildReview(quiz.questions, quiz.id, attempt.answers, attempt.results)} />
+        <AttemptReview review={buildReview(quiz.questions, attempt.answers, attempt.results)} />
       </div>
     </>
   );

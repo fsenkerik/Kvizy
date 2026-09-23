@@ -9,11 +9,15 @@ export function QuizSettingsFields({
   showAnswersAfter,
   isOpen,
   points,
+  shuffleQuestions,
+  shuffleOptions,
 }: {
   maxAttempts: number | null;
   showAnswersAfter: boolean;
   isOpen: boolean;
   points: number;
+  shuffleQuestions: boolean;
+  shuffleOptions: boolean;
 }) {
   const initialMode = maxAttempts === null ? "unlimited" : maxAttempts === 1 ? "one" : "custom";
   const [mode, setMode] = useState(initialMode);
@@ -39,6 +43,14 @@ export function QuizSettingsFields({
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="showAnswersAfter" defaultChecked={showAnswersAfter} className="accent-[var(--primary)]" />
         Po odevzdání zobrazit správné odpovědi a vysvětlení
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="shuffleQuestions" defaultChecked={shuffleQuestions} className="accent-[var(--primary)]" />
+        Zamíchat pořadí otázek (každý student má jiné)
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="shuffleOptions" defaultChecked={shuffleOptions} className="accent-[var(--primary)]" />
+        Zamíchat pořadí odpovědí u otázek
       </label>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="isOpen" defaultChecked={isOpen} className="accent-[var(--primary)]" />

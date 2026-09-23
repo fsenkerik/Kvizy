@@ -64,7 +64,7 @@ export default async function QuizResultPage(props: PageProps<"/trida/[classId]/
       </div>
 
       {quiz.showAnswersAfter ? (
-        <AttemptReview review={buildReview(quiz.questions, quiz.id, last.answers, last.results)} />
+        <AttemptReview review={buildReview(quiz.questions, last.answers, last.results)} />
       ) : (
         <Alert tone="info">Učitel u tohoto kvízu nezobrazuje správné odpovědi.</Alert>
       )}

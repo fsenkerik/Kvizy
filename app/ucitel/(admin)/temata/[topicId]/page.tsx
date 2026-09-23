@@ -132,7 +132,11 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                       <p className="text-xs text-muted">
                         {plural(q.questions.length, ["otázka", "otázky", "otázek"])} ·{" "}
                         {q.maxAttempts === null ? "neomezeně pokusů" : plural(q.maxAttempts, ["pokus", "pokusy", "pokusů"])} ·{" "}
-                        {q.showAnswersAfter ? "zobrazuje odpovědi" : "bez odpovědí"} · ⭐ {q.points} b. · vyplnilo {studentsDone}
+                        {q.showAnswersAfter ? "zobrazuje odpovědi" : "bez odpovědí"} · ⭐ {q.points} b. ·{" "}
+                        {q.shuffleQuestions || q.shuffleOptions
+                          ? `🔀 ${q.shuffleQuestions && q.shuffleOptions ? "otázky i odpovědi" : q.shuffleQuestions ? "otázky" : "odpovědi"}`
+                          : "bez míchání"}{" "}
+                        · vyplnilo {studentsDone}
                         {!q.isOpen && " · uzavřeno"}
                       </p>
                     </div>

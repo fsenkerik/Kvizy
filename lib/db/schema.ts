@@ -96,6 +96,10 @@ export const quizzes = pgTable(
     isOpen: boolean("is_open").notNull().default(true),
     /** Body při 100 % (bodování pro studenty). */
     points: integer("points").notNull().default(10),
+    /** Každý student dostane otázky v jiném pořadí. */
+    shuffleQuestions: boolean("shuffle_questions").notNull().default(true),
+    /** Možnosti u otázek (a pravé strany párování) se zamíchají. */
+    shuffleOptions: boolean("shuffle_options").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
