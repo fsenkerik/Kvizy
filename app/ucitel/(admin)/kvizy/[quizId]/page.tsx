@@ -40,7 +40,7 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
         actions={
           <>
             <Link href={`/ucitel/kvizy/${quiz.id}/nahled`} className={buttonClass("primary")}>
-              👁 Náhled kvízu
+              👁 Náhled a úpravy otázek
             </Link>
             <Link href={`/ucitel/kvizy/${quiz.id}/vysledky`} className={buttonClass("secondary")}>
               Výsledky
@@ -54,7 +54,9 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
           <CardBody>
             <h2 className="mb-1 text-lg font-semibold">Otázky (JSON)</h2>
             <p className="mb-4 text-sm text-muted">
-              Uprav JSON a ulož. Otázky mají svá <code>id</code> – zachovej je, aby starší pokusy studentů dál seděly na správné otázky.
+              Hromadná úprava pro pokročilé – po jedné otázce se pohodlněji upravuje v{" "}
+              <Link href={`/ucitel/kvizy/${quiz.id}/nahled`} className="underline">náhledu kvízu</Link>. Otázky mají svá <code>id</code>;
+              zachovej je, aby starší pokusy studentů dál seděly na správné otázky.
             </p>
             <QuizJsonForm action={updateQuizJson} hidden={{ quizId: quiz.id }} initialJson={json} submitLabel="Uložit otázky" />
           </CardBody>

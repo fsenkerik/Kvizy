@@ -90,3 +90,16 @@ U každého kvízu jsou v *Nastavení* dva přepínače, **oba zapnuté** (lze j
 - **Zamíchat pořadí odpovědí** – zamíchají se možnosti u výběrových otázek i pravé strany u párování. (Pravda/Nepravda a doplňovačky nemají co míchat.)
 
 Pořadí je pro daného studenta stálé – po obnovení stránky se nezamíchá znovu. Hodnocení i uložené výsledky pracují vždy s původním pořadím z JSON, takže revize u učitele i v přehledu výsledků vypadá stejně jako kvíz v editoru. Hned po odevzdání vidí student revizi v pořadí, ve kterém kvíz vyplňoval.
+
+## Úprava otázek v aplikaci
+
+V **👁 Náhledu kvízu** je záložka **✏️ Upravit otázky**. U každé otázky můžeš:
+
+- **✏️ Upravit** – text, možnosti (přidat/odebrat), která je správná, vysvětlení i body,
+- **Kopie** – vytvoří podobnou otázku, kterou jen přepíšeš,
+- **↑ ↓** – posunout v pořadí (studentům se stejně zamíchá, pokud to máš zapnuté),
+- **Smazat** – otázku odstraní (kvíz musí mít aspoň jednu).
+
+Tlačítkem **+ Přidat otázku** vybereš typ (ABCD, více správných, pravda/nepravda, otevřená odpověď, párování) a rovnou ji vyplníš. Všechno se ukládá okamžitě do kvízu, takže se můžeš hned přepnout zpět na *Náhled* a zkusit si ho jako student.
+
+> Pozor u kvízu, který už studenti vyplnili: změna možností nebo smazání otázky se projeví i v revizi starších pokusů (skóre u nich zůstává, jak bylo odevzdáno). Když měníš kvíz kvůli opravě, je čistší smazat pokusy a nechat studenty vyplnit znovu.

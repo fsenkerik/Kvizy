@@ -7,6 +7,8 @@ import { PageTitle } from "@/components/shell";
 import { Alert } from "@/components/ui/alert";
 import { buttonClass } from "@/components/ui/button";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
+import { PreviewTabs } from "@/components/teacher/preview-tabs";
+import { QuestionEditor } from "@/components/teacher/question-editor";
 import { plural } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -55,11 +57,16 @@ export default async function QuizPreviewPage(props: PageProps<"/ucitel/kvizy/[q
       />
 
       <Alert tone="info" className="mb-5">
-        <strong>Náhled pro učitele.</strong> Kvíz vidíš přesně jako student. Odpovědi ani výsledek se neukládají a studentům se nikde nezobrazí.
-        {(quiz.shuffleQuestions || quiz.shuffleOptions) && " Pořadí je zamíchané – každý student uvidí jiné."}
+        <strong>Náhled pro učitele.</strong> V záložce <em>Náhled</em> vidíš kvíz přesně jako student – odpovědi ani výsledek se neukládají.
+        V záložce <em>Upravit otázky</em> můžeš otázky rovnou měnit, mazat i přidávat.
+        {(quiz.shuffleQuestions || quiz.shuffleOptions) && " Pořadí je v náhledu zamíchané, stejně jako ho uvidí studenti."}
       </Alert>
 
-      <QuizRunner quizId={quiz.id} questions={questions} backHref={`/ucitel/kvizy/${quiz.id}`} backLabel="Zpět na kvíz" preview />
+      <PreviewTabs
+        questionCount={quiz.questions.length}
+        runner={<QuizRunner quizId={quiz.id} questions={questions} backHref={`/ucitel/kvizy/${quiz.id}`} backLabel="Zpět na kvíz" preview />}
+        editor={<QuestionEditor quizId={quiz.id} questions={quiz.questions} />}
+      />
     </div>
   );
 }

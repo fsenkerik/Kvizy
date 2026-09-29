@@ -157,7 +157,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                           {q.isOpen ? "Uzavřít" : "Otevřít"}
                         </Button>
                       </form>
-                      <Link href={`/ucitel/kvizy/${q.id}/nahled`} className={buttonClass("secondary", "sm")} title="Projít kvíz jako student (neukládá se)">
+                      <Link href={`/ucitel/kvizy/${q.id}/nahled`} className={buttonClass("secondary", "sm")} title="Projít kvíz jako student a upravit otázky">
                         👁 Náhled
                       </Link>
                       <Link href={`/ucitel/kvizy/${q.id}/vysledky`} className={buttonClass("secondary", "sm")}>
