@@ -103,3 +103,13 @@ V **👁 Náhledu kvízu** je záložka **✏️ Upravit otázky**. U každé ot
 Tlačítkem **+ Přidat otázku** vybereš typ (ABCD, více správných, pravda/nepravda, otevřená odpověď, párování) a rovnou ji vyplníš. Všechno se ukládá okamžitě do kvízu, takže se můžeš hned přepnout zpět na *Náhled* a zkusit si ho jako student.
 
 > Pozor u kvízu, který už studenti vyplnili: změna možností nebo smazání otázky se projeví i v revizi starších pokusů (skóre u nich zůstává, jak bylo odevzdáno). Když měníš kvíz kvůli opravě, je čistší smazat pokusy a nechat studenty vyplnit znovu.
+
+## Tři způsoby, jak založit kvíz
+
+V detailu tématu máš tlačítka:
+
+1. **✏️ Vytvořit ručně** – zadáš jen název (a případně popis) a hned se otevře editor, kde otázky přidáváš jednu po druhé. Kvíz je zatím **zavřený**, takže ho studenti nevidí; otevřeš ho v nastavení kvízu, až bude hotový.
+2. **Nahrát HTML** – převede tvůj původní `.html` kvíz.
+3. **+ Kvíz** – vložení celého kvízu jako JSON (např. vygenerovaného v Claudu).
+
+Všechny tři končí ve stejném editoru, takže kvíz kdykoli doplníš nebo upravíš.

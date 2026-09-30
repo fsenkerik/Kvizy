@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, Dialog } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty";
 import { QUESTION_TYPE_LABELS, type Question } from "@/lib/quiz/types";
 import { QuestionForm } from "./question-form";
 
@@ -26,7 +27,7 @@ function answerSummary(q: Question) {
   }
 }
 
-export function QuestionEditor({ quizId, questions }: { quizId: string; questions: Question[] }) {
+export function QuestionEditor({ quizId, questions, isOpen }: { quizId: string; questions: Question[]; isOpen?: boolean }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Question | null>(null);
   const [adding, setAdding] = useState(false);
@@ -59,6 +60,16 @@ export function QuestionEditor({ quizId, questions }: { quizId: string; question
       </div>
 
       {error && <Alert>{error}</Alert>}
+
+      {isOpen === false && questions.length > 0 && (
+        <Alert tone="warning">
+          Kvíz je zatím <strong>zavřený</strong> – studenti ho nevidí. Až ho budeš mít hotový, otevři ho v nastavení kvízu.
+        </Alert>
+      )}
+
+      {questions.length === 0 && (
+        <EmptyState title="Kvíz zatím nemá žádnou otázku" hint="Přidej první otázku tlačítkem „+ Přidat otázku“ vpravo nahoře." />
+      )}
 
       <ol className="space-y-3">
         {questions.map((q, index) => (
@@ -93,7 +104,7 @@ export function QuestionEditor({ quizId, questions }: { quizId: string; question
                 <Button variant="secondary" size="sm" onClick={() => setEditing(q)}>
                   ✏️ Upravit
                 </Button>
-                <Button variant="ghost" size="sm" className="text-danger-fg" disabled={questions.length <= 1 || pending} onClick={() => setToDelete(q)}>
+                <Button variant="ghost" size="sm" className="text-danger-fg" disabled={pending} onClick={() => setToDelete(q)}>
                   Smazat
                 </Button>
               </div>

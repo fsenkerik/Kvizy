@@ -36,6 +36,7 @@ export function QuizRunner({
   const points = usePointsOptional();
 
   const answeredCount = useMemo(() => questions.filter((q) => isAnswered(q, answers[q.id])).length, [questions, answers]);
+  const progress = questions.length === 0 ? 0 : (answeredCount / questions.length) * 100;
 
   function setAnswer(id: string, value: AnswerValue) {
     setAnswers((prev) => ({ ...prev, [id]: value }));
@@ -75,6 +76,10 @@ export function QuizRunner({
         window.setTimeout(() => award({ total: res.points.total, max: res.points.max, earned: res.points.earned }), 400);
       }
     });
+  }
+
+  if (questions.length === 0) {
+    return <Alert tone="info">Kvíz zatím nemá žádnou otázku.</Alert>;
   }
 
   if (result) {
@@ -134,7 +139,7 @@ export function QuizRunner({
           </Button>
         </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
-          <div className="h-full bg-primary transition-all" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
+          <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
       </div>
 

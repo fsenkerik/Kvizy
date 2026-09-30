@@ -5,7 +5,7 @@ import { getDb, schema } from "@/lib/db";
 import { requireTeacher } from "@/lib/auth/guards";
 import { getOwnedTopic } from "@/lib/db/access";
 import { deleteTopic, toggleTopicVisible, updateTopic } from "@/app/actions/topics";
-import { createQuizFromHtml, createQuizFromJson, moveQuiz, toggleQuizOpen } from "@/app/actions/quizzes";
+import { createEmptyQuiz, createQuizFromHtml, createQuizFromJson, moveQuiz, toggleQuizOpen } from "@/app/actions/quizzes";
 import { createLink, deleteLink, updateLink } from "@/app/actions/links";
 import { PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
@@ -93,7 +93,22 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Kvízy</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+            <Dialog title="Vytvořit kvíz ručně" trigger={<Button size="sm" variant="secondary">✏️ Vytvořit ručně</Button>}>
+              <p className="mb-3 text-sm text-muted">
+                Založí prázdný kvíz a rovnou tě přepne do editoru, kde otázky přidáš jednu po druhé.
+                Kvíz je zatím zavřený – studenti ho uvidí, až ho otevřeš.
+              </p>
+              <ActionForm action={createEmptyQuiz} submitLabel="Vytvořit a přidat otázky">
+                <input type="hidden" name="topicId" value={topic.id} />
+                <Field label="Název kvízu">
+                  <Input name="title" required autoFocus placeholder="Např. Hardware – opakování" />
+                </Field>
+                <Field label="Popis pro studenty (volitelné)">
+                  <Textarea name="description" className="min-h-16" placeholder="Např. Zopakuj si, co jsme probrali minulou hodinu." />
+                </Field>
+              </ActionForm>
+            </Dialog>
             <Dialog title="Nahrát hotový HTML kvíz" trigger={<Button size="sm" variant="secondary">Nahrát HTML</Button>}>
               <p className="mb-3 text-sm text-muted">
                 Vyber soubor <code>.html</code> s kvízem ve tvém původním formátu (např. <code>hardware_kviz.html</code>). Aplikace z něj
@@ -118,7 +133,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
             </Dialog>
             </div>
           </div>
-          {quizzes.length === 0 && <EmptyState title="Žádný kvíz" hint="Nahraj hotový HTML kvíz nebo vlož JSON." />}
+          {quizzes.length === 0 && <EmptyState title="Žádný kvíz" hint="Vytvoř kvíz ručně, nahraj hotový HTML nebo vlož JSON." />}
           <div className="space-y-2">
             {quizzes.map((q, i) => {
               const studentsDone = new Set(q.attempts.map((a) => a.studentId)).size;
@@ -130,7 +145,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                         {q.title}
                       </Link>
                       <p className="text-xs text-muted">
-                        {plural(q.questions.length, ["otázka", "otázky", "otázek"])} ·{" "}
+                        {q.questions.length === 0 ? "zatím bez otázek" : plural(q.questions.length, ["otázka", "otázky", "otázek"])} ·{" "}
                         {q.maxAttempts === null ? "neomezeně pokusů" : plural(q.maxAttempts, ["pokus", "pokusy", "pokusů"])} ·{" "}
                         {q.showAnswersAfter ? "zobrazuje odpovědi" : "bez odpovědí"} · ⭐ {q.points} b. ·{" "}
                         {q.shuffleQuestions || q.shuffleOptions

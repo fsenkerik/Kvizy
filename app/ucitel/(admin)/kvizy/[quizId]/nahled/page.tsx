@@ -64,8 +64,9 @@ export default async function QuizPreviewPage(props: PageProps<"/ucitel/kvizy/[q
 
       <PreviewTabs
         questionCount={quiz.questions.length}
+        defaultTab={quiz.questions.length === 0 ? "upravy" : "nahled"}
         runner={<QuizRunner quizId={quiz.id} questions={questions} backHref={`/ucitel/kvizy/${quiz.id}`} backLabel="Zpět na kvíz" preview />}
-        editor={<QuestionEditor quizId={quiz.id} questions={quiz.questions} />}
+        editor={<QuestionEditor quizId={quiz.id} questions={quiz.questions} isOpen={quiz.isOpen} />}
       />
     </div>
   );

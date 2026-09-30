@@ -173,3 +173,37 @@ export async function createQuizFromHtml(_prev: ActionState, formData: FormData)
   revalidatePath(`/ucitel/temata/${topic.id}`);
   return { success: `Kvíz „${quiz.title}“ nahrán (${quiz.questions.length} otázek).` };
 }
+
+/**
+ * Založí prázdný kvíz pro ruční tvorbu. Zatím je zavřený (studenti ho nevidí),
+ * ať se dá v klidu naplnit otázkami; otevře se v nastavení nebo tlačítkem v editoru.
+ */
+export async function createEmptyQuiz(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const teacher = await requireTeacher();
+  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  if (!topic) return { error: "Téma nenalezeno." };
+  const title = str(formData, "title");
+  if (!title) return { error: "Zadej název kvízu." };
+
+  const db = await getDb();
+  const [{ maxOrder }] = await db
+    .select({ maxOrder: max(schema.quizzes.sortOrder) })
+    .from(schema.quizzes)
+    .where(eq(schema.quizzes.topicId, topic.id));
+  const [quiz] = await db
+    .insert(schema.quizzes)
+    .values({
+      topicId: topic.id,
+      title,
+      description: str(formData, "description") || null,
+      questions: [],
+      maxAttempts: 1,
+      showAnswersAfter: true,
+      isOpen: false,
+      sortOrder: (maxOrder ?? 0) + 1,
+    })
+    .returning({ id: schema.quizzes.id });
+
+  revalidatePath(`/ucitel/temata/${topic.id}`);
+  redirect(`/ucitel/kvizy/${quiz.id}/nahled`);
+}
