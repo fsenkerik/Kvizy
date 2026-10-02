@@ -6,7 +6,7 @@ import { requireTeacher } from "@/lib/auth/guards";
 import { getOwnedGroup, listGroupShares, listShareCandidates } from "@/lib/db/access";
 import { deleteGroup, updateGroup } from "@/app/actions/groups";
 import { createClass } from "@/app/actions/classes";
-import { createTopic, moveTopic, toggleTopicVisible } from "@/app/actions/topics";
+import { createTopic, deleteTopic, moveTopic, toggleTopicVisible } from "@/app/actions/topics";
 import { PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -197,6 +197,19 @@ export default async function GroupPage(props: PageProps<"/ucitel/skupiny/[group
                     <Link href={`/ucitel/temata/${t.id}`} className={buttonClass("primary", "sm")}>
                       Otevřít
                     </Link>
+                    {group.access.canEdit && (
+                      <form action={deleteTopic}>
+                        <input type="hidden" name="topicId" value={t.id} />
+                        <ConfirmButton
+                          variant="ghost"
+                          size="sm"
+                          className="text-danger-fg"
+                          message={`Opravdu smazat téma „${t.title}“? Smaže se i ${t.quizzes.length} kvízů, ${t.links.length} odkazů a všechny výsledky studentů z tohoto tématu. Nelze vrátit.`}
+                        >
+                          Smazat
+                        </ConfirmButton>
+                      </form>
+                    )}
                   </div>
                 </CardBody>
               </Card>
