@@ -4,13 +4,13 @@ import { and, asc, eq, max } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedGroup, getOwnedTopic } from "@/lib/db/access";
+import { editableOnly, getOwnedGroup, getOwnedTopic } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { type ActionState, intOrNull, str } from "./types";
 
 export async function createTopic(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const group = await getOwnedGroup(teacher.id, str(formData, "groupId"));
+  const group = editableOnly(await getOwnedGroup(teacher.id, str(formData, "groupId")));
   if (!group) return { error: "Skupina nenalezena." };
   const title = str(formData, "title");
   if (!title) return { error: "Zadej název tématu." };
@@ -36,7 +36,7 @@ export async function createTopic(_prev: ActionState, formData: FormData): Promi
 
 export async function updateTopic(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return { error: "Téma nenalezeno." };
   const title = str(formData, "title");
   if (!title) return { error: "Zadej název tématu." };
@@ -53,7 +53,7 @@ export async function updateTopic(_prev: ActionState, formData: FormData): Promi
 
 export async function toggleTopicVisible(formData: FormData) {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return;
   const db = await getDb();
   await db.update(schema.topics).set({ isVisible: !topic.isVisible }).where(eq(schema.topics.id, topic.id));
@@ -64,7 +64,7 @@ export async function toggleTopicVisible(formData: FormData) {
 /** Posune téma o jedno nahoru/dolů v rámci skupiny (prohodí sortOrder se sousedem). */
 export async function moveTopic(formData: FormData) {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return;
   const direction = str(formData, "direction") === "up" ? -1 : 1;
 
@@ -90,7 +90,7 @@ export async function moveTopic(formData: FormData) {
 
 export async function deleteTopic(formData: FormData) {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return;
   const db = await getDb();
   await db.delete(schema.topics).where(eq(schema.topics.id, topic.id));

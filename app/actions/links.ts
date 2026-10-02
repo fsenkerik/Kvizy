@@ -3,7 +3,7 @@
 import { eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedLink, getOwnedTopic } from "@/lib/db/access";
+import { editableOnly, getOwnedLink, getOwnedTopic } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { type ActionState, intOrNull, str } from "./types";
 
@@ -26,7 +26,7 @@ function normalizeUrl(raw: string) {
 
 export async function createLink(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return { error: "Téma nenalezeno." };
   const title = str(formData, "title");
   const url = normalizeUrl(str(formData, "url"));
@@ -54,7 +54,7 @@ export async function createLink(_prev: ActionState, formData: FormData): Promis
 
 export async function updateLink(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const link = await getOwnedLink(teacher.id, str(formData, "linkId"));
+  const link = editableOnly(await getOwnedLink(teacher.id, str(formData, "linkId")));
   if (!link) return { error: "Odkaz nenalezen." };
   const title = str(formData, "title");
   const url = normalizeUrl(str(formData, "url"));
@@ -74,7 +74,7 @@ export async function updateLink(_prev: ActionState, formData: FormData): Promis
 
 export async function deleteLink(formData: FormData) {
   const teacher = await requireTeacher();
-  const link = await getOwnedLink(teacher.id, str(formData, "linkId"));
+  const link = editableOnly(await getOwnedLink(teacher.id, str(formData, "linkId")));
   if (!link) return;
   const db = await getDb();
   await db.delete(schema.links).where(eq(schema.links.id, link.id));

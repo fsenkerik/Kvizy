@@ -4,7 +4,7 @@ import { eq, max } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedGroup } from "@/lib/db/access";
+import { editableOnly, getOwnedGroup, ownerOnly } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { type ActionState, str } from "./types";
 
@@ -33,7 +33,7 @@ export async function createGroup(_prev: ActionState, formData: FormData): Promi
 
 export async function updateGroup(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const group = await getOwnedGroup(teacher.id, str(formData, "groupId"));
+  const group = editableOnly(await getOwnedGroup(teacher.id, str(formData, "groupId")));
   if (!group) return { error: "Skupina nenalezena." };
   const name = str(formData, "name");
   const level = parseLevel(str(formData, "level"));
@@ -48,7 +48,8 @@ export async function updateGroup(_prev: ActionState, formData: FormData): Promi
 
 export async function deleteGroup(formData: FormData) {
   const teacher = await requireTeacher();
-  const group = await getOwnedGroup(teacher.id, str(formData, "groupId"));
+  // Smazat celou skupinu smí jen její vlastník, ne učitel se sdíleným přístupem.
+  const group = ownerOnly(await getOwnedGroup(teacher.id, str(formData, "groupId")));
   if (!group) return;
   const db = await getDb();
   await db.delete(schema.groups).where(eq(schema.groups.id, group.id));

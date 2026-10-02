@@ -54,6 +54,8 @@ export default async function ClassAdminPage(props: PageProps<"/ucitel/tridy/[cl
             <Link href={`/ucitel/tridy/${cls.id}/piny`} className={buttonClass("secondary")} target="_blank">
               Tisk PINů
             </Link>
+            {cls.access.canEdit && (
+            <>
             <Dialog title="Přidat studenty" trigger={<Button>+ Studenti</Button>}>
               <ActionForm action={addStudents} submitLabel="Přidat" resetOnSuccess closeDialogOnSuccess>
                 <input type="hidden" name="classId" value={cls.id} />
@@ -76,6 +78,8 @@ export default async function ClassAdminPage(props: PageProps<"/ucitel/tridy/[cl
                 </ConfirmButton>
               </form>
             </Dialog>
+            </>
+            )}
           </>
         }
       />
@@ -91,7 +95,7 @@ export default async function ClassAdminPage(props: PageProps<"/ucitel/tridy/[cl
                 <th className="px-4 py-2">Jméno</th>
                 <th className="px-4 py-2">PIN</th>
                 <th className="px-4 py-2">Stav</th>
-                <th className="px-4 py-2 text-right">Akce</th>
+                {cls.access.canEdit && <th className="px-4 py-2 text-right">Akce</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -111,6 +115,7 @@ export default async function ClassAdminPage(props: PageProps<"/ucitel/tridy/[cl
                       <Badge tone="success">aktivní</Badge>
                     )}
                   </td>
+                  {cls.access.canEdit && (
                   <td className="px-4 py-2">
                     <div className="flex items-center justify-end gap-1">
                       <Dialog title="Upravit studenta" trigger={<Button variant="ghost" size="sm">Upravit</Button>}>
@@ -146,6 +151,7 @@ export default async function ClassAdminPage(props: PageProps<"/ucitel/tridy/[cl
                       </form>
                     </div>
                   </td>
+                  )}
                 </tr>
               ))}
             </tbody>

@@ -154,6 +154,27 @@ export const attempts = pgTable(
   ],
 );
 
+/**
+ * Sdílení skupiny s dalším učitelem. Vlastník (groups.teacherId) může sdílení kdykoli zrušit;
+ * sdílený učitel vidí skupinu mezi svými a podle role ji může i upravovat.
+ */
+export const groupShares = pgTable(
+  "group_shares",
+  {
+    id: id(),
+    groupId: text("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    teacherId: text("teacher_id")
+      .notNull()
+      .references(() => teachers.id, { onDelete: "cascade" }),
+    /** "edit" = plný přístup (kromě smazání skupiny a správy sdílení), "view" = jen prohlížení */
+    role: text("role", { enum: ["edit", "view"] }).notNull().default("edit"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("group_shares_group_teacher_idx").on(t.groupId, t.teacherId), index("group_shares_teacher_idx").on(t.teacherId)],
+);
+
 /** Návštěva odkazu studentem: kliknutí a (po uplynutí čekací doby) splnění. */
 export const linkVisits = pgTable(
   "link_visits",
@@ -197,11 +218,16 @@ export const pointEvents = pgTable(
   (t) => [uniqueIndex("point_events_student_source_idx").on(t.studentId, t.sourceKey), index("point_events_student_idx").on(t.studentId)],
 );
 
-export const teachersRelations = relations(teachers, ({ many }) => ({ groups: many(groups) }));
+export const teachersRelations = relations(teachers, ({ many }) => ({ groups: many(groups), shares: many(groupShares) }));
+export const groupSharesRelations = relations(groupShares, ({ one }) => ({
+  group: one(groups, { fields: [groupShares.groupId], references: [groups.id] }),
+  teacher: one(teachers, { fields: [groupShares.teacherId], references: [teachers.id] }),
+}));
 export const groupsRelations = relations(groups, ({ one, many }) => ({
   teacher: one(teachers, { fields: [groups.teacherId], references: [teachers.id] }),
   classes: many(classes),
   topics: many(topics),
+  shares: many(groupShares),
 }));
 export const classesRelations = relations(classes, ({ one, many }) => ({
   group: one(groups, { fields: [classes.groupId], references: [groups.id] }),
@@ -238,3 +264,5 @@ export type Link = typeof links.$inferSelect;
 export type Attempt = typeof attempts.$inferSelect;
 export type LinkVisit = typeof linkVisits.$inferSelect;
 export type PointEvent = typeof pointEvents.$inferSelect;
+export type GroupShare = typeof groupShares.$inferSelect;
+export type ShareRole = GroupShare["role"];

@@ -3,7 +3,7 @@
 Školní kvízy z informatiky na jednom odkazu. Student klikne na svou třídu, vybere jméno, zadá PIN a vyplňuje. Učitel spravuje skupiny tříd → třídy → studenty → témata → kvízy a odkazy na cvičení a vidí, kdo co vyplnil a jak odpovídal.
 
 - **Stack:** Next.js (App Router) · Tailwind · Drizzle ORM · Postgres (Neon) · Vercel
-- **Dokumentace:** [nasazení a provoz](docs/nasazeni.md) · [formát kvízu](docs/format-kvizu.md) · [prompt pro generování kvízu](docs/prompt-generovani-kvizu.md)
+- **Dokumentace:** [nasazení a provoz](docs/nasazeni.md) · [formát kvízu](docs/format-kvizu.md) · [prompt pro generování kvízu](docs/prompt-generovani-kvizu.md) · [sdílení mezi učiteli](docs/sdileni.md)
 
 ## Rychlý start
 

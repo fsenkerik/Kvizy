@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { asc, eq } from "drizzle-orm";
-import { getDb, schema } from "@/lib/db";
 import { requireTeacher } from "@/lib/auth/guards";
+import { listAccessibleGroups } from "@/lib/db/access";
 import { createGroup } from "@/app/actions/groups";
 import { PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
@@ -19,23 +18,54 @@ export const metadata = { title: "Skupiny" };
 
 
 
+type GroupCard = Awaited<ReturnType<typeof listAccessibleGroups>>[number];
+
+function GroupGrid({ groups }: { groups: GroupCard[] }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {groups.map((g) => (
+        <Link key={g.id} href={`/ucitel/skupiny/${g.id}`} className="group">
+          <Card className="h-full transition-colors group-hover:border-primary">
+            <CardBody>
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <h2 className="text-lg font-semibold">{g.name}</h2>
+                <Badge tone={g.level === "nizsi" ? "mint" : "sky"}>{LEVEL_LABEL[g.level]}</Badge>
+              </div>
+              <p className="text-sm text-muted">
+                {g.classes.length > 0
+                  ? [...g.classes].sort((a, b) => a.sortOrder - b.sortOrder).map((c) => c.name).join(", ")
+                  : "bez tříd"}{" "}
+                · {plural(g.topics.length, ["téma", "témata", "témat"])}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {g.access.isOwner ? (
+                  g.shares.length > 0 && <Badge tone="primary">sdílíš {g.shares.length}×</Badge>
+                ) : (
+                  <>
+                    <Badge tone="lavender">od {g.teacher.name}</Badge>
+                    {!g.access.canEdit && <Badge tone="warning">jen prohlížení</Badge>}
+                  </>
+                )}
+              </div>
+            </CardBody>
+          </Card>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default async function TeacherHomePage() {
   const teacher = await requireTeacher();
-  const db = await getDb();
-  const groups = await db.query.groups.findMany({
-    where: eq(schema.groups.teacherId, teacher.id),
-    orderBy: [asc(schema.groups.sortOrder), asc(schema.groups.createdAt)],
-    with: {
-      classes: { orderBy: [asc(schema.classes.sortOrder)], columns: { id: true, name: true } },
-      topics: { columns: { id: true } },
-    },
-  });
+  const groups = await listAccessibleGroups(teacher.id);
+  const own = groups.filter((g) => g.access.isOwner);
+  const shared = groups.filter((g) => !g.access.isOwner);
 
   return (
     <>
       <PageTitle
         title="Skupiny tříd"
-        subtitle="Skupina sdílí témata a kvízy; třídy v ní jsou jednotlivé kolektivy studentů."
+        subtitle="Skupina sdružuje témata, kvízy a třídy. Můžeš ji nasdílet kolegovi – v detailu skupiny."
         actions={
           <Dialog title="Nová skupina" trigger={<Button>+ Nová skupina</Button>}>
             <ActionForm action={createGroup} submitLabel="Vytvořit">
@@ -55,24 +85,14 @@ export default async function TeacherHomePage() {
 
       {groups.length === 0 && <EmptyState title="Zatím nemáš žádnou skupinu" hint="Začni tlačítkem „Nová skupina“ vpravo nahoře." />}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {groups.map((g) => (
-          <Link key={g.id} href={`/ucitel/skupiny/${g.id}`} className="group">
-            <Card className="h-full transition-colors group-hover:border-primary">
-              <CardBody>
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <h2 className="text-lg font-semibold">{g.name}</h2>
-                  <Badge tone={g.level === "nizsi" ? "mint" : "sky"}>{LEVEL_LABEL[g.level]}</Badge>
-                </div>
-                <p className="text-sm text-muted">
-                  {g.classes.length > 0 ? g.classes.map((c) => c.name).join(", ") : "bez tříd"} ·{" "}
-                  {plural(g.topics.length, ["téma", "témata", "témat"])}
-                </p>
-              </CardBody>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {own.length > 0 && <GroupGrid groups={own} />}
+
+      {shared.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Nasdílené mně</h2>
+          <GroupGrid groups={shared} />
+        </section>
+      )}
     </>
   );
 }

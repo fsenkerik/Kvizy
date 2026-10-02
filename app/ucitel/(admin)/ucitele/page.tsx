@@ -2,6 +2,9 @@ import { asc } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/guards";
 import { createTeacher, deleteTeacher } from "@/app/actions/teachers";
+import { shareAllGroups, unshareAllGroups } from "@/app/actions/shares";
+import { listOwnedGroups } from "@/lib/db/access";
+import { Select } from "@/components/ui/input";
 import { PageTitle } from "@/components/shell";
 import { Card, CardBody } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +21,15 @@ export const metadata = { title: "Učitelé" };
 export default async function TeachersPage() {
   const admin = await requireAdmin();
   const db = await getDb();
-  const teachers = await db.query.teachers.findMany({
-    orderBy: [asc(schema.teachers.name)],
-    with: { groups: { columns: { id: true } } },
-  });
+  const [teachers, myGroups] = await Promise.all([
+    db.query.teachers.findMany({
+      orderBy: [asc(schema.teachers.name)],
+      with: { groups: { columns: { id: true } }, shares: { columns: { groupId: true } } },
+    }),
+    listOwnedGroups(admin.id),
+  ]);
+  const myGroupIds = new Set(myGroups.map((g) => g.id));
+  const others = teachers.filter((t) => t.id !== admin.id);
 
   return (
     <>
@@ -49,6 +57,39 @@ export default async function TeachersPage() {
         }
       />
 
+      {others.length > 0 && myGroups.length > 0 && (
+        <Card className="mb-6">
+          <CardBody>
+            <h2 className="mb-1 text-lg font-semibold">Sdílet kolegovi všechny moje skupiny</h2>
+            <p className="mb-4 text-sm text-muted">
+              Rychlá volba, když chceš nasdílet úplně všechno ({myGroups.length}). Jednotlivé skupiny a oprávnění pak doladíš v detailu skupiny.
+            </p>
+            <ActionForm action={shareAllGroups} submitLabel="Nasdílet všechny skupiny">
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <Field label="Učitel">
+                  <Select name="teacherId" defaultValue="">
+                    <option value="" disabled>
+                      — vyber kolegu —
+                    </option>
+                    {others.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.email})
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Oprávnění">
+                  <Select name="role" defaultValue="edit">
+                    <option value="edit">Plný přístup</option>
+                    <option value="view">Jen prohlížení</option>
+                  </Select>
+                </Field>
+              </div>
+            </ActionForm>
+          </CardBody>
+        </Card>
+      )}
+
       <div className="space-y-2">
         {teachers.map((t) => (
           <Card key={t.id}>
@@ -59,16 +100,28 @@ export default async function TeachersPage() {
                   {t.id === admin.id && <Badge className="ml-1">ty</Badge>}
                 </p>
                 <p className="text-xs text-muted">
-                  {t.email} · {t.groups.length} skupin · od {formatDate(t.createdAt)}
+                  {t.email} · {t.groups.length} vlastních skupin
+                  {t.id !== admin.id && ` · ode mě nasdíleno ${t.shares.filter((sh) => myGroupIds.has(sh.groupId)).length}`} · od{" "}
+                  {formatDate(t.createdAt)}
                 </p>
               </div>
               {t.id !== admin.id && (
+                <div className="flex items-center gap-1">
+                  {t.shares.filter((sh) => myGroupIds.has(sh.groupId)).length > 0 && (
+                    <form action={unshareAllGroups}>
+                      <input type="hidden" name="teacherId" value={t.id} />
+                      <ConfirmButton variant="secondary" size="sm" message={`Zrušit ${t.name} přístup ke všem tvým skupinám?`}>
+                        Zrušit sdílení všeho
+                      </ConfirmButton>
+                    </form>
+                  )}
                 <form action={deleteTeacher}>
                   <input type="hidden" name="teacherId" value={t.id} />
                   <ConfirmButton variant="danger" size="sm" message={`Opravdu smazat účet ${t.email} včetně všech jeho skupin, tříd a výsledků?`}>
                     Smazat
                   </ConfirmButton>
                 </form>
+                </div>
               )}
             </CardBody>
           </Card>

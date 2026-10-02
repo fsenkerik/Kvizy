@@ -4,13 +4,13 @@ import { eq, max } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedClass, getOwnedGroup } from "@/lib/db/access";
+import { editableOnly, getOwnedClass, getOwnedGroup } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { type ActionState, str } from "./types";
 
 export async function createClass(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const group = await getOwnedGroup(teacher.id, str(formData, "groupId"));
+  const group = editableOnly(await getOwnedGroup(teacher.id, str(formData, "groupId")));
   if (!group) return { error: "Skupina nenalezena." };
   const name = str(formData, "name");
   if (!name) return { error: "Zadej název třídy (např. 1.AV)." };
@@ -28,7 +28,7 @@ export async function createClass(_prev: ActionState, formData: FormData): Promi
 
 export async function renameClass(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const cls = await getOwnedClass(teacher.id, str(formData, "classId"));
+  const cls = editableOnly(await getOwnedClass(teacher.id, str(formData, "classId")));
   if (!cls) return { error: "Třída nenalezena." };
   const name = str(formData, "name");
   if (!name) return { error: "Zadej název třídy." };
@@ -43,7 +43,7 @@ export async function renameClass(_prev: ActionState, formData: FormData): Promi
 
 export async function deleteClass(formData: FormData) {
   const teacher = await requireTeacher();
-  const cls = await getOwnedClass(teacher.id, str(formData, "classId"));
+  const cls = editableOnly(await getOwnedClass(teacher.id, str(formData, "classId")));
   if (!cls) return;
   const db = await getDb();
   await db.delete(schema.classes).where(eq(schema.classes.id, cls.id));

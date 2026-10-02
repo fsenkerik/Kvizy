@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedQuiz } from "@/lib/db/access";
+import { editableOnly, getOwnedQuiz } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { questionSchema } from "@/lib/quiz/schema";
 import { newId } from "@/lib/ids";
@@ -13,7 +13,7 @@ export type QuestionActionResult = { ok: true } | { ok: false; errors: string[] 
 
 async function loadQuiz(quizId: string) {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, quizId);
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, quizId));
   return quiz;
 }
 

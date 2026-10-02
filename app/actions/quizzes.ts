@@ -4,7 +4,7 @@ import { asc, eq, max } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedQuiz, getOwnedTopic } from "@/lib/db/access";
+import { editableOnly, getOwnedQuiz, getOwnedTopic } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { parseQuizJson } from "@/lib/quiz/schema";
 import { syncQuizPointsForAll } from "@/lib/points";
@@ -14,7 +14,7 @@ export type QuizJsonState = { error?: string; success?: string; errors?: string[
 
 export async function createQuizFromJson(_prev: QuizJsonState, formData: FormData): Promise<QuizJsonState> {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return { error: "Téma nenalezeno." };
 
   const parsed = parseQuizJson(String(formData.get("json") ?? ""));
@@ -41,7 +41,7 @@ export async function createQuizFromJson(_prev: QuizJsonState, formData: FormDat
 
 export async function updateQuizJson(_prev: QuizJsonState, formData: FormData): Promise<QuizJsonState> {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return { error: "Kvíz nenalezen." };
 
   const parsed = parseQuizJson(String(formData.get("json") ?? ""));
@@ -59,7 +59,7 @@ export async function updateQuizJson(_prev: QuizJsonState, formData: FormData): 
 
 export async function updateQuizSettings(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return { error: "Kvíz nenalezen." };
 
   const attemptsMode = str(formData, "attemptsMode"); // "one" | "unlimited" | "custom"
@@ -94,7 +94,7 @@ export async function updateQuizSettings(_prev: ActionState, formData: FormData)
 
 export async function toggleQuizOpen(formData: FormData) {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return;
   const db = await getDb();
   await db.update(schema.quizzes).set({ isOpen: !quiz.isOpen }).where(eq(schema.quizzes.id, quiz.id));
@@ -104,7 +104,7 @@ export async function toggleQuizOpen(formData: FormData) {
 
 export async function moveQuiz(formData: FormData) {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return;
   const direction = str(formData, "direction") === "up" ? -1 : 1;
 
@@ -127,7 +127,7 @@ export async function moveQuiz(formData: FormData) {
 
 export async function deleteQuiz(formData: FormData) {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return;
   const db = await getDb();
   await db.delete(schema.quizzes).where(eq(schema.quizzes.id, quiz.id));
@@ -140,7 +140,7 @@ const MAX_HTML_BYTES = 2 * 1024 * 1024;
 /** Nahrání hotového HTML kvízu (původní formát) – převede se na JSON a uloží jako nový kvíz. */
 export async function createQuizFromHtml(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return { error: "Téma nenalezeno." };
 
   const file = formData.get("file");
@@ -180,7 +180,7 @@ export async function createQuizFromHtml(_prev: ActionState, formData: FormData)
  */
 export async function createEmptyQuiz(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const topic = await getOwnedTopic(teacher.id, str(formData, "topicId"));
+  const topic = editableOnly(await getOwnedTopic(teacher.id, str(formData, "topicId")));
   if (!topic) return { error: "Téma nenalezeno." };
   const title = str(formData, "title");
   if (!title) return { error: "Zadej název kvízu." };

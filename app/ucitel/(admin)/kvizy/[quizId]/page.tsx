@@ -11,6 +11,7 @@ import { ConfirmButton } from "@/components/teacher/confirm-button";
 import { QuizJsonForm } from "@/components/teacher/quiz-json-form";
 import { QuizSettingsFields } from "@/components/teacher/quiz-settings-fields";
 import { plural } from "@/lib/utils";
+import { Alert } from "@/components/ui/alert";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Kvíz" };
@@ -40,7 +41,7 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
         actions={
           <>
             <Link href={`/ucitel/kvizy/${quiz.id}/nahled`} className={buttonClass("primary")}>
-              👁 Náhled a úpravy otázek
+              👁 {quiz.access.canEdit ? "Náhled a úpravy otázek" : "Náhled kvízu"}
             </Link>
             <Link href={`/ucitel/kvizy/${quiz.id}/vysledky`} className={buttonClass("secondary")}>
               Výsledky
@@ -49,7 +50,14 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
         }
       />
 
+      {!quiz.access.canEdit && (
+        <Alert tone="info" className="mb-5">
+          Tenhle kvíz máš jen pro prohlížení – nasdílel ti ho kolega bez práva úprav.
+        </Alert>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        {quiz.access.canEdit && (
         <Card>
           <CardBody>
             <h2 className="mb-1 text-lg font-semibold">Otázky (JSON)</h2>
@@ -61,8 +69,10 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
             <QuizJsonForm action={updateQuizJson} hidden={{ quizId: quiz.id }} initialJson={json} submitLabel="Uložit otázky" />
           </CardBody>
         </Card>
+        )}
 
         <div className="space-y-6">
+          {quiz.access.canEdit && (
           <Card>
             <CardBody>
               <h2 className="mb-4 text-lg font-semibold">Nastavení</h2>
@@ -79,7 +89,9 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
               </ActionForm>
             </CardBody>
           </Card>
+          )}
 
+          {quiz.access.canEdit && (
           <Card>
             <CardBody>
               <h2 className="mb-2 text-lg font-semibold">Smazat kvíz</h2>
@@ -92,6 +104,7 @@ export default async function QuizAdminPage(props: PageProps<"/ucitel/kvizy/[qui
               </form>
             </CardBody>
           </Card>
+          )}
         </div>
       </div>
     </>

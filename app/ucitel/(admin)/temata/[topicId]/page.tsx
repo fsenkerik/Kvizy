@@ -56,6 +56,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
           </>
         }
         actions={
+          topic.access.canEdit && (
           <>
             <form action={toggleTopicVisible}>
               <input type="hidden" name="topicId" value={topic.id} />
@@ -86,6 +87,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
               </form>
             </Dialog>
           </>
+          )
         }
       />
 
@@ -93,6 +95,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Kvízy</h2>
+            {topic.access.canEdit && (
             <div className="flex flex-wrap items-center gap-2">
             <Dialog title="Vytvořit kvíz ručně" trigger={<Button size="sm" variant="secondary">✏️ Vytvořit ručně</Button>}>
               <p className="mb-3 text-sm text-muted">
@@ -132,6 +135,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
               <QuizJsonForm action={createQuizFromJson} hidden={{ topicId: topic.id }} submitLabel="Přidat kvíz" closeDialogOnSuccess />
             </Dialog>
             </div>
+            )}
           </div>
           {quizzes.length === 0 && <EmptyState title="Žádný kvíz" hint="Vytvoř kvíz ručně, nahraj hotový HTML nebo vlož JSON." />}
           <div className="space-y-2">
@@ -156,6 +160,8 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
+                      {topic.access.canEdit && (
+                      <>
                       <form action={moveQuiz}>
                         <input type="hidden" name="quizId" value={q.id} />
                         <input type="hidden" name="direction" value="up" />
@@ -172,6 +178,8 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                           {q.isOpen ? "Uzavřít" : "Otevřít"}
                         </Button>
                       </form>
+                      </>
+                      )}
                       <Link href={`/ucitel/kvizy/${q.id}/nahled`} className={buttonClass("secondary", "sm")} title="Projít kvíz jako student a upravit otázky">
                         👁 Náhled
                       </Link>
@@ -179,7 +187,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                         Výsledky
                       </Link>
                       <Link href={`/ucitel/kvizy/${q.id}`} className={buttonClass("primary", "sm")}>
-                        Upravit
+                        {topic.access.canEdit ? "Upravit" : "Detail"}
                       </Link>
                     </div>
                   </CardBody>
@@ -192,6 +200,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Cvičení a odkazy</h2>
+            {topic.access.canEdit && (
             <Dialog title="Nový odkaz" trigger={<Button size="sm" variant="secondary">+ Odkaz</Button>}>
               <ActionForm action={createLink} submitLabel="Přidat" resetOnSuccess closeDialogOnSuccess>
                 <input type="hidden" name="topicId" value={topic.id} />
@@ -209,6 +218,7 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                 </Field>
               </ActionForm>
             </Dialog>
+            )}
           </div>
           {links.length === 0 && <EmptyState title="Žádný odkaz" hint="Sem patří úkoly a cvičení mimo aplikaci." />}
           <div className="space-y-2">
@@ -225,6 +235,8 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
+                    {topic.access.canEdit && (
+                    <>
                     <Dialog title="Upravit odkaz" trigger={<Button variant="ghost" size="sm">Upravit</Button>}>
                       <ActionForm action={updateLink} closeDialogOnSuccess>
                         <input type="hidden" name="linkId" value={l.id} />
@@ -248,6 +260,8 @@ export default async function TopicPage(props: PageProps<"/ucitel/temata/[topicI
                         Smazat
                       </ConfirmButton>
                     </form>
+                    </>
+                    )}
                   </div>
                 </CardBody>
               </Card>

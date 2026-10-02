@@ -4,7 +4,7 @@ import { and, count, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedAttempt, getOwnedQuiz, getOwnedStudent } from "@/lib/db/access";
+import { editableOnly, getOwnedAttempt, getOwnedQuiz, getOwnedStudent } from "@/lib/db/access";
 import { currentStudent, requireTeacher } from "@/lib/auth/guards";
 import { str } from "./types";
 import { buildReview, grade, toCanonicalAnswers, type ShuffleCtx } from "@/lib/quiz/engine";
@@ -111,7 +111,7 @@ function revalidateQuizResults(quizId: string, topicId: string) {
 /** Smaže jeden konkrétní pokus. */
 export async function deleteAttempt(formData: FormData) {
   const teacher = await requireTeacher();
-  const attempt = await getOwnedAttempt(teacher.id, str(formData, "attemptId"));
+  const attempt = editableOnly(await getOwnedAttempt(teacher.id, str(formData, "attemptId")));
   if (!attempt) return;
   const db = await getDb();
   await db.delete(schema.attempts).where(eq(schema.attempts.id, attempt.id));
@@ -139,7 +139,7 @@ export async function deleteStudentQuizAttempts(formData: FormData) {
 /** Smaže všechny pokusy všech studentů u kvízu. */
 export async function deleteQuizAttempts(formData: FormData) {
   const teacher = await requireTeacher();
-  const quiz = await getOwnedQuiz(teacher.id, str(formData, "quizId"));
+  const quiz = editableOnly(await getOwnedQuiz(teacher.id, str(formData, "quizId")));
   if (!quiz) return;
   const db = await getDb();
   await db.delete(schema.attempts).where(eq(schema.attempts.quizId, quiz.id));
@@ -153,6 +153,7 @@ export async function deleteQuizAttempts(formData: FormData) {
  */
 export async function previewGrade(quizId: string, rawAnswers: unknown): Promise<SubmitResult> {
   const teacher = await requireTeacher();
+  // Náhled je čtení – stačí přístup ke skupině (i jen pro prohlížení).
   const quiz = await getOwnedQuiz(teacher.id, quizId);
   if (!quiz) return { ok: false, error: "Kvíz nenalezen." };
 

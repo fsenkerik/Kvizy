@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb, schema } from "@/lib/db";
-import { getOwnedClass, getOwnedStudent } from "@/lib/db/access";
+import { editableOnly, getOwnedClass, getOwnedStudent } from "@/lib/db/access";
 import { requireTeacher } from "@/lib/auth/guards";
 import { newPin } from "@/lib/ids";
 import { type ActionState, str } from "./types";
@@ -25,7 +25,7 @@ function uniquePin(taken: Set<string>) {
 
 export async function addStudents(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const cls = await getOwnedClass(teacher.id, str(formData, "classId"));
+  const cls = editableOnly(await getOwnedClass(teacher.id, str(formData, "classId")));
   if (!cls) return { error: "Třída nenalezena." };
 
   const lines = str(formData, "names")
@@ -46,7 +46,7 @@ export async function addStudents(_prev: ActionState, formData: FormData): Promi
 
 export async function renameStudent(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const teacher = await requireTeacher();
-  const student = await getOwnedStudent(teacher.id, str(formData, "studentId"));
+  const student = editableOnly(await getOwnedStudent(teacher.id, str(formData, "studentId")));
   if (!student) return { error: "Student nenalezen." };
   const firstName = str(formData, "firstName");
   const lastName = str(formData, "lastName");
@@ -60,7 +60,7 @@ export async function renameStudent(_prev: ActionState, formData: FormData): Pro
 
 export async function regeneratePin(formData: FormData) {
   const teacher = await requireTeacher();
-  const student = await getOwnedStudent(teacher.id, str(formData, "studentId"));
+  const student = editableOnly(await getOwnedStudent(teacher.id, str(formData, "studentId")));
   if (!student) return;
   const db = await getDb();
   const siblings = await db.query.students.findMany({ where: eq(schema.students.classId, student.classId) });
@@ -74,7 +74,7 @@ export async function regeneratePin(formData: FormData) {
 
 export async function toggleStudentActive(formData: FormData) {
   const teacher = await requireTeacher();
-  const student = await getOwnedStudent(teacher.id, str(formData, "studentId"));
+  const student = editableOnly(await getOwnedStudent(teacher.id, str(formData, "studentId")));
   if (!student) return;
   const db = await getDb();
   await db.update(schema.students).set({ isActive: !student.isActive }).where(eq(schema.students.id, student.id));
@@ -83,7 +83,7 @@ export async function toggleStudentActive(formData: FormData) {
 
 export async function deleteStudent(formData: FormData) {
   const teacher = await requireTeacher();
-  const student = await getOwnedStudent(teacher.id, str(formData, "studentId"));
+  const student = editableOnly(await getOwnedStudent(teacher.id, str(formData, "studentId")));
   if (!student) return;
   const db = await getDb();
   await db.delete(schema.students).where(eq(schema.students.id, student.id));

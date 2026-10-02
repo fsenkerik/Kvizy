@@ -66,7 +66,13 @@ export default async function QuizPreviewPage(props: PageProps<"/ucitel/kvizy/[q
         questionCount={quiz.questions.length}
         defaultTab={quiz.questions.length === 0 ? "upravy" : "nahled"}
         runner={<QuizRunner quizId={quiz.id} questions={questions} backHref={`/ucitel/kvizy/${quiz.id}`} backLabel="Zpět na kvíz" preview />}
-        editor={<QuestionEditor quizId={quiz.id} questions={quiz.questions} isOpen={quiz.isOpen} />}
+        editor={
+          quiz.access.canEdit ? (
+            <QuestionEditor quizId={quiz.id} questions={quiz.questions} isOpen={quiz.isOpen} />
+          ) : (
+            <Alert tone="info">Kvíz máš jen pro prohlížení – otázky může upravovat jen vlastník skupiny nebo učitel s plným přístupem.</Alert>
+          )
+        }
       />
     </div>
   );
